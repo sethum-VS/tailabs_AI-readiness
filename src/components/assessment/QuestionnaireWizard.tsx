@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { ChevronRight, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react'
+import Image from 'next/image'
 import type { TokenContext } from './TokenValidator'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -364,25 +365,20 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
       }}
     >
       {/* ─── Logo Header ──────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '40px' }}>
-        <div
-          style={{
-            width: '32px',
-            height: '32px',
-            background: 'var(--color-primary-dark)',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <span style={{ color: 'var(--color-brand-accent)', fontSize: '16px', fontWeight: '700' }}>T</span>
-        </div>
-        <div>
-          <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-            TAI Readiness Assessment
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
+        <Image
+          src="/images/logos/tai-horizontal-primary.png"
+          alt="TAI Readiness"
+          width={150}
+          height={42}
+          priority
+          style={{ height: '34px', width: 'auto', objectFit: 'contain' }}
+        />
+        <div style={{ borderLeft: '1px solid var(--color-border)', paddingLeft: '12px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+            Assessment
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+          <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
             {tokenContext.organization_name} · {tokenContext.team_name}
           </div>
         </div>

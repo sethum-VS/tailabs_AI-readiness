@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { InviteManager } from '@/components/admin/InviteManager'
 import Link from 'next/link'
+import Image from 'next/image'
 import { LayoutDashboard, Share2 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -32,25 +33,16 @@ export default function DistributionPage() {
             justifyContent: 'space-between',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Logo mark */}
-            <div
-              style={{
-                width: '28px',
-                height: '28px',
-                background: 'var(--color-primary-dark)',
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span style={{ color: 'var(--color-brand-accent)', fontSize: '14px', fontWeight: '700' }}>T</span>
-            </div>
-            <span style={{ fontSize: '15px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-              TAI Readiness
-            </span>
-          </div>
+          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Image
+              src="/images/logos/tai-horizontal-primary.png"
+              alt="TAI Readiness"
+              width={142}
+              height={40}
+              priority
+              style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+            />
+          </Link>
 
           {/* Nav links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
