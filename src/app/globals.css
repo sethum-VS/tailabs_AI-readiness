@@ -315,6 +315,12 @@ textarea:focus {
   color: var(--color-primary-dark) !important;
 }
 
+/* Nav links */
+.nav-link:hover {
+  background: rgba(34, 34, 40, 0.06) !important;
+  color: var(--color-text-primary) !important;
+}
+
 /* Toaster */
 .sonner-toast {
   font-family: var(--font-family) !important;
