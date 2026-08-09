@@ -37,7 +37,7 @@ export function GlobalFooter() {
         {/* Right: Legal links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Link
-            href="/legal/terms"
+            href="/"
             style={{
               fontSize: '12px',
               color: 'var(--color-text-secondary)',
@@ -50,7 +50,7 @@ export function GlobalFooter() {
           </Link>
           <span style={{ color: 'var(--color-border)', fontSize: '12px' }}>|</span>
           <Link
-            href="/legal/privacy"
+            href="/"
             style={{
               fontSize: '12px',
               color: 'var(--color-text-secondary)',

@@ -332,3 +332,12 @@ textarea:focus {
   font-family: var(--font-family) !important;
   font-size: 14px !important;
 }
+
+/* Hide Next.js Dev Tool Indicator */
+nextjs-portal,
+[data-nextjs-toast-errors-parent],
+[data-nextjs-toast],
+[data-nextjs-dev-overlay-button],
+#nextjs-dev-tools {
+  display: none !important;
+}
