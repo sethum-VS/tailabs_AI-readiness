@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
 interface InviteWithRelations {
@@ -27,8 +27,15 @@ interface ResponseRow {
   invite_id: string | null
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Org ID is injected by middleware from the tai_guest_id cookie
+    const orgId = request.headers.get('x-tai-org-id')
+
+    if (!orgId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
@@ -60,7 +67,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch invites' }, { status: 500 })
     }
 
-    const invites = (data ?? []) as unknown as InviteWithRelations[]
+    // Filter to only invites belonging to this guest's org
+    const allInvites = (data ?? []) as unknown as InviteWithRelations[]
+    const invites = allInvites.filter((i) => i.teams?.organization_id === orgId)
     const inviteIds = invites.map((i) => i.id)
 
     let responseCounts: Record<string, number> = {}

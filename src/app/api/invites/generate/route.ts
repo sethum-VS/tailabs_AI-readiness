@@ -4,47 +4,40 @@ import { nanoid } from 'nanoid'
 
 export async function POST(request: NextRequest) {
   try {
+    // Org ID is injected by middleware from the tai_guest_id cookie
+    const orgId = request.headers.get('x-tai-org-id')
+
+    if (!orgId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
-    const { organization_name, team_name, target_seats = 10 } = body as {
-      organization_name: string
+    const { team_name, target_seats = 10 } = body as {
       team_name: string
       target_seats?: number
     }
 
-    if (!organization_name || !team_name) {
+    if (!team_name) {
       return NextResponse.json(
-        { error: 'organization_name and team_name are required' },
+        { error: 'team_name is required' },
         { status: 400 }
       )
     }
 
     const supabase = createAdminClient()
 
-    // 1. Find or create organization
-    let orgId: string
-
-    const { data: existingOrg } = await supabase
+    // Verify the org exists
+    const { data: org } = await supabase
       .from('organizations')
       .select('id')
-      .eq('name', organization_name)
-      .maybeSingle() as { data: { id: string } | null; error: unknown }
+      .eq('id', orgId)
+      .maybeSingle() as unknown as { data: { id: string } | null }
 
-    if (existingOrg) {
-      orgId = existingOrg.id
-    } else {
-      const { data: newOrg, error: orgError } = await supabase
-        .from('organizations')
-        .insert({ name: organization_name } as never)
-        .select('id')
-        .single() as unknown as { data: { id: string } | null; error: unknown }
-
-      if (orgError || !newOrg) {
-        return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
-      }
-      orgId = newOrg.id
+    if (!org) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
 
-    // 2. Find or create team
+    // Find or create team within this guest's org only
     let teamId: string
 
     const { data: existingTeam } = await supabase
@@ -69,7 +62,7 @@ export async function POST(request: NextRequest) {
       teamId = newTeam.id
     }
 
-    // 3. Generate invite
+    // Generate invite
     const token = nanoid(64)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
