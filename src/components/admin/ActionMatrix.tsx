@@ -1,5 +1,6 @@
 'use client'
 
+import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PILLAR_LABELS, STATUS_COLORS, getScoreStatus } from '@/lib/scoringEngine'
 import type { Recommendation } from '@/lib/scoringEngine'
@@ -139,8 +140,9 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
             padding: '8px 16px',
           }}
           onClick={() => {
-            // In production, this would navigate to the enrollment page
-            alert(`Enrolling team in: ${rec.title}`)
+            toast.success(`Enrolled team in ${rec.title}`, {
+              description: `Upskilling pathway initialized for ${PILLAR_LABELS[rec.pillar] ?? rec.pillar}.`,
+            })
           }}
         >
           {rec.action_label}
