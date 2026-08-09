@@ -133,6 +133,8 @@ export function getRecommendations(
 
 // ─── Pillar Label Mapping ─────────────────────────────────────────────────────
 
+import { Wrench, Workflow, BarChart3, SearchCheck, Target, type LucideIcon } from 'lucide-react'
+
 export const PILLAR_LABELS: Record<string, string> = {
   tool_usage: 'Tool Usage',
   workflow_automation: 'Workflow Automation',
@@ -141,10 +143,11 @@ export const PILLAR_LABELS: Record<string, string> = {
   leadership_buyin: 'Leadership Buy-in',
 }
 
-export const PILLAR_ICONS: Record<string, string> = {
-  tool_usage: '🔧',
-  workflow_automation: '⚙️',
-  data_literacy: '📊',
-  output_evaluation: '🔍',
-  leadership_buyin: '🎯',
+export const PILLAR_ICONS: Record<string, LucideIcon> = {
+  tool_usage: Wrench,
+  workflow_automation: Workflow,
+  data_literacy: BarChart3,
+  output_evaluation: SearchCheck,
+  leadership_buyin: Target,
 }
+
