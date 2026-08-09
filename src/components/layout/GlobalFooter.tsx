@@ -1,6 +1,15 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function GlobalFooter() {
+  const pathname = usePathname()
+
+  if (pathname === '/login') {
+    return null
+  }
+
   return (
     <footer
       style={{
@@ -68,4 +77,5 @@ export function GlobalFooter() {
     </footer>
   )
 }
+
 
