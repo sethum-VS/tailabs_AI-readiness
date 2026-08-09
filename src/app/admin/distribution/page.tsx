@@ -17,7 +17,7 @@ export default function DistributionPage() {
         style={{
           backgroundColor: 'var(--color-bg-card)',
           borderBottom: '1px solid var(--color-border)',
-          padding: '0 24px',
+          padding: '0 16px',
           position: 'sticky',
           top: 0,
           zIndex: 50,
@@ -31,16 +31,17 @@ export default function DistributionPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            gap: '8px',
           }}
         >
-          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
             <Image
               src="/images/logos/tai-horizontal-primary.png"
               alt="TAI Readiness"
               width={142}
               height={40}
               priority
-              style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+              style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
             />
           </Link>
 
@@ -52,9 +53,9 @@ export default function DistributionPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '6px 14px',
+                padding: '6px 12px',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '500',
                 color: 'var(--color-text-secondary)',
                 textDecoration: 'none',
@@ -63,7 +64,7 @@ export default function DistributionPage() {
               className="nav-link"
             >
               <LayoutDashboard size={15} />
-              Dashboard
+              <span className="hide-mobile">Dashboard</span>
             </Link>
             <Link
               href="/admin/distribution"
@@ -71,9 +72,9 @@ export default function DistributionPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '6px 14px',
+                padding: '6px 12px',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '500',
                 color: 'var(--color-brand-accent)',
                 textDecoration: 'none',
@@ -81,14 +82,15 @@ export default function DistributionPage() {
               }}
             >
               <Share2 size={15} />
-              Distribution
+              <span className="hide-mobile">Distribution</span>
             </Link>
           </div>
         </div>
       </nav>
 
       {/* ─── Page Content ────────────────────────────────────────────────────── */}
-      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' }}>
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 16px' }}>
+
         {/* Breadcrumb */}
         <div
           style={{

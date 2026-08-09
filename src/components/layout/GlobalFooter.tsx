@@ -6,7 +6,7 @@ export function GlobalFooter() {
       style={{
         backgroundColor: 'var(--color-bg-card)',
         borderTop: '1px solid var(--color-border)',
-        padding: '12px 24px',
+        padding: '16px',
       }}
     >
       <div
@@ -17,7 +17,7 @@ export function GlobalFooter() {
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '8px',
+          gap: '12px',
         }}
       >
         {/* Left: Copyright + version */}
@@ -35,7 +35,7 @@ export function GlobalFooter() {
         </span>
 
         {/* Right: Legal links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <Link
             href="/"
             style={{
@@ -43,6 +43,7 @@ export function GlobalFooter() {
               color: 'var(--color-text-secondary)',
               textDecoration: 'none',
               fontFamily: 'var(--font-family)',
+              padding: '4px 0',
             }}
             className="footer-link"
           >
@@ -56,6 +57,7 @@ export function GlobalFooter() {
               color: 'var(--color-text-secondary)',
               textDecoration: 'none',
               fontFamily: 'var(--font-family)',
+              padding: '4px 0',
             }}
             className="footer-link"
           >
@@ -66,3 +68,4 @@ export function GlobalFooter() {
     </footer>
   )
 }
+

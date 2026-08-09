@@ -549,9 +549,13 @@ export function InviteManager() {
         <DialogContent
           style={{
             maxWidth: '520px',
+            width: 'calc(100vw - 32px)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
             borderRadius: '12px',
             border: '1px solid var(--color-border)',
             fontFamily: 'var(--font-family)',
+            padding: '24px 20px',
           }}
         >
           <DialogHeader>
@@ -586,13 +590,13 @@ export function InviteManager() {
                 <Label style={{ fontSize: '13px', fontWeight: '500' }}>
                   Team / Department <span style={{ color: 'var(--color-danger)' }}>*</span>
                 </Label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '8px' }}>
                   {PRESET_TEAMS.map((team) => (
                     <button
                       key={team}
                       onClick={() => setSelectedTeam(team)}
                       style={{
-                        padding: '8px 12px',
+                        padding: '10px 12px',
                         fontSize: '13px',
                         fontWeight: '500',
                         borderRadius: '6px',
@@ -612,7 +616,7 @@ export function InviteManager() {
                       setShowCreateTeam(true)
                     }}
                     style={{
-                      padding: '8px 12px',
+                      padding: '10px 12px',
                       fontSize: '13px',
                       fontWeight: '500',
                       borderRadius: '6px',
@@ -629,6 +633,7 @@ export function InviteManager() {
                     <Plus size={13} /> Custom
                   </button>
                 </div>
+
 
                 {selectedTeam === '__custom__' && (
                   <Input

@@ -125,11 +125,12 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button
           className="btn-primary"
           style={{
             flex: 1,
+            minWidth: '130px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -173,7 +174,7 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <Skeleton className="h-5 w-48" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '16px' }}>
           {[1, 2, 3].map((i) => (
             <div key={i} className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
@@ -251,7 +252,7 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
             gap: '16px',
           }}
         >
@@ -263,3 +264,4 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
     </div>
   )
 }
+

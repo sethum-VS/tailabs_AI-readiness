@@ -60,14 +60,14 @@ export function MacroScorecard({
 
   if (loading) {
     return (
-      <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '32px' }}>
+      <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '24px 16px' }}>
         <Skeleton className="h-6 w-40" />
-        <Skeleton className="rounded-full" style={{ width: '200px', height: '200px' }} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', width: '100%' }}>
+        <Skeleton className="rounded-full" style={{ width: '180px', height: '180px' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', width: '100%' }}>
           {[1, 2, 3].map((i) => (
             <div key={i} style={{ textAlign: 'center' }}>
-              <Skeleton className="h-8 w-12 mx-auto mb-2" />
-              <Skeleton className="h-4 w-20 mx-auto" />
+              <Skeleton className="h-7 w-12 mx-auto mb-2" />
+              <Skeleton className="h-3 w-16 mx-auto" />
             </div>
           ))}
         </div>
@@ -76,7 +76,7 @@ export function MacroScorecard({
   }
 
   return (
-    <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '32px' }}>
+    <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '24px 16px' }}>
       {/* Title */}
       <div style={{ textAlign: 'center' }}>
         <h3 style={{ fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-secondary)', margin: '0 0 4px' }}>
@@ -123,12 +123,12 @@ export function MacroScorecard({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '4px',
+            gap: '2px',
           }}
         >
           <span
             style={{
-              fontSize: '40px',
+              fontSize: '36px',
               fontWeight: '700',
               color: color,
               lineHeight: 1,
@@ -137,7 +137,7 @@ export function MacroScorecard({
           >
             {animatedScore}
           </span>
-          <span style={{ fontSize: '16px', fontWeight: '400', color: 'var(--color-text-secondary)' }}>%</span>
+          <span style={{ fontSize: '14px', fontWeight: '400', color: 'var(--color-text-secondary)' }}>%</span>
           <span
             style={{
               fontSize: '11px',
@@ -176,14 +176,14 @@ export function MacroScorecard({
             key={label}
             style={{
               background: 'var(--color-bg-card)',
-              padding: '16px 8px',
+              padding: '12px 6px',
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-text-primary)' }}>
+            <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--color-text-primary)' }}>
               {value}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px', whiteSpace: 'nowrap' }}>
               {label}
             </div>
           </div>
@@ -192,3 +192,4 @@ export function MacroScorecard({
     </div>
   )
 }
+

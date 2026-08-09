@@ -1,6 +1,8 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
+
 import { getScoreStatus, STATUS_COLORS } from '@/lib/scoringEngine'
 import {
   BarChart,
@@ -66,12 +68,23 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export function TeamDisparityChart({ teams, loading = false }: TeamDisparityChartProps) {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   if (loading) {
     return (
       <div className="oxygen-card" style={{ padding: '24px' }}>
         <Skeleton className="h-5 w-48 mb-4" />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-8 flex-1" />
@@ -108,12 +121,12 @@ export function TeamDisparityChart({ teams, loading = false }: TeamDisparityChar
       score: Math.round(t.score * 100) / 100,
     }))
 
-  const barHeight = 48
-  const chartHeight = Math.max(200, chartData.length * (barHeight + 12) + 40)
+  const barHeight = 44
+  const chartHeight = Math.max(200, chartData.length * (barHeight + 12) + 30)
 
   return (
-    <div className="oxygen-card">
-      <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--color-border)' }}>
+    <div className="oxygen-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)' }}>
         <h3 style={{ fontSize: '15px', fontWeight: '600', margin: '0 0 4px', color: 'var(--color-text-primary)' }}>
           Team Readiness Disparity
         </h3>
@@ -127,7 +140,7 @@ export function TeamDisparityChart({ teams, loading = false }: TeamDisparityChar
           <BarChart
             layout="vertical"
             data={chartData}
-            margin={{ top: 0, right: 60, left: 8, bottom: 0 }}
+            margin={{ top: 0, right: 50, left: isMobile ? 4 : 8, bottom: 0 }}
             barSize={barHeight - 12}
           >
             <CartesianGrid
@@ -147,10 +160,10 @@ export function TeamDisparityChart({ teams, loading = false }: TeamDisparityChar
             <YAxis
               type="category"
               dataKey="name"
-              width={100}
+              width={isMobile ? 75 : 100}
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 13, fill: 'var(--color-text-primary)', fontFamily: 'var(--font-family)', fontWeight: 500 }}
+              tick={{ fontSize: isMobile ? 11 : 13, fill: 'var(--color-text-primary)', fontFamily: 'var(--font-family)', fontWeight: 500 }}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(34,34,40,0.03)' }} />
             <Bar dataKey="score" radius={[0, 4, 4, 0]}>
@@ -162,7 +175,7 @@ export function TeamDisparityChart({ teams, loading = false }: TeamDisparityChar
                 dataKey="score"
                 position="right"
                 formatter={(v: unknown) => `${Number(v).toFixed(0)}%`}
-                style={{ fontSize: '12px', fontWeight: '600', fontFamily: 'var(--font-family)', fill: 'var(--color-text-primary)' }}
+                style={{ fontSize: '11px', fontWeight: '600', fontFamily: 'var(--font-family)', fill: 'var(--color-text-primary)' }}
               />
             </Bar>
           </BarChart>
@@ -173,14 +186,14 @@ export function TeamDisparityChart({ teams, loading = false }: TeamDisparityChar
       <div
         style={{
           display: 'flex',
-          gap: '16px',
-          padding: '12px 24px',
+          gap: '12px',
+          padding: '12px 20px',
           borderTop: '1px solid var(--color-border)',
           flexWrap: 'wrap',
         }}
       >
         {[
-          { color: '#4CAF50', label: 'High Readiness (>70%)' },
+          { color: '#4CAF50', label: 'High (>70%)' },
           { color: '#FF7300', label: 'Developing (40–70%)' },
           { color: '#F44336', label: 'Needs Focus (<40%)' },
         ].map(({ color, label }) => (
@@ -193,3 +206,4 @@ export function TeamDisparityChart({ teams, loading = false }: TeamDisparityChar
     </div>
   )
 }
+

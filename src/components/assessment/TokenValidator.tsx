@@ -121,7 +121,7 @@ export function TokenValidator({ token, onValid, onInvalid }: TokenValidatorProp
           background: 'var(--color-bg-card)',
           border: '1px solid var(--color-border)',
           borderRadius: '12px',
-          padding: '48px 40px',
+          padding: '36px 24px',
           textAlign: 'center',
           boxShadow: '0px 4px 24px rgba(0,0,0,0.06)',
         }}
