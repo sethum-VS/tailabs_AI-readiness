@@ -366,14 +366,14 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
       }}
     >
       {/* ─── Logo Header ──────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px', flexWrap: 'wrap', justifyContent: 'center' }}>
         <Image
           src="/images/logos/tai-horizontal-primary.png"
           alt="TAI Readiness"
           width={150}
           height={42}
           priority
-          style={{ height: '34px', width: 'auto', objectFit: 'contain' }}
+          style={{ height: '30px', width: 'auto', objectFit: 'contain' }}
         />
         <div style={{ borderLeft: '1px solid var(--color-border)', paddingLeft: '12px' }}>
           <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
@@ -399,12 +399,12 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
       >
         {/* Progress bar pinned to top of card */}
         {step === 'question' && (
-          <div style={{ padding: '20px 32px 0' }}>
+          <div style={{ padding: '16px 20px 0' }}>
             <AssessmentProgressBar current={currentPillar} total={PILLARS.length} />
           </div>
         )}
 
-        <div style={{ padding: step === 'question' ? '24px 32px 32px' : '40px 32px 40px' }}>
+        <div style={{ padding: step === 'question' ? '20px 20px 24px' : '28px 20px 28px' }}>
 
           {/* ─── Identity Step ────────────────────────────────────────────── */}
           {step === 'identity' && (
@@ -521,7 +521,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
 
           {/* ─── Question Step ────────────────────────────────────────────── */}
           {step === 'question' && currentPillarData && (
-            <div key={currentPillar} className="question-enter" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div key={currentPillar} className="question-enter" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Pillar label */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div
@@ -561,16 +561,16 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
               <div>
                 <h2
                   style={{
-                    fontSize: '20px',
+                    fontSize: '18px',
                     fontWeight: '600',
                     color: 'var(--color-text-primary)',
                     lineHeight: '1.4',
-                    margin: '0 0 10px',
+                    margin: '0 0 8px',
                   }}
                 >
                   {currentPillarData.question}
                 </h2>
-                <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: '1.6' }}>
+                <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: '1.5' }}>
                   {currentPillarData.helper}
                 </p>
               </div>
@@ -587,7 +587,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '16px',
+                      gap: '12px',
                       textAlign: 'left',
                       width: '100%',
                       cursor: 'pointer',
@@ -595,15 +595,15 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                   >
                     <div className="likert-number">{option.value}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                        <span style={{ fontSize: '15px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
                           {option.label}
                         </span>
                         <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
                           / {option.sublabel}
                         </span>
                       </div>
-                      <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
                         {option.description}
                       </div>
                     </div>
@@ -615,7 +615,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
               </div>
 
               {/* Keyboard hint */}
-              <p style={{ fontSize: '12px', color: 'var(--color-text-disabled)', textAlign: 'center', margin: 0 }}>
+              <p className="keyboard-hint" style={{ fontSize: '12px', color: 'var(--color-text-disabled)', textAlign: 'center', margin: 0 }}>
                 Press <kbd style={{ padding: '1px 6px', border: '1px solid var(--color-border)', borderRadius: '3px', fontSize: '11px' }}>1</kbd>–
                 <kbd style={{ padding: '1px 6px', border: '1px solid var(--color-border)', borderRadius: '3px', fontSize: '11px' }}>4</kbd> to select · 
                 <kbd style={{ padding: '1px 6px', border: '1px solid var(--color-border)', borderRadius: '3px', fontSize: '11px', marginLeft: '4px' }}>Enter</kbd> to continue
@@ -626,7 +626,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                 <button
                   className="btn-secondary"
                   onClick={handleBack}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px' }}
                 >
                   <ChevronLeft size={16} />
                   Back
@@ -641,7 +641,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px',
-                    padding: '10px 20px',
+                    padding: '10px 16px',
                     opacity: currentSelection === undefined ? 0.4 : 1,
                     cursor: currentSelection === undefined ? 'not-allowed' : 'pointer',
                     transition: 'opacity 0.15s ease',
@@ -658,6 +658,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
               </div>
             </div>
           )}
+
 
           {/* ─── Success Step ─────────────────────────────────────────────── */}
           {step === 'success' && (

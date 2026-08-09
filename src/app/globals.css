@@ -57,12 +57,14 @@
 /* ─── Base Reset ───────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -74,6 +76,7 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
 }
 
 /* ─── Scrollbar ────────────────────────────────────────────────────────────── */
@@ -90,6 +93,15 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-secondary);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ─── Focus Styles ─────────────────────────────────────────────────────────── */
@@ -110,12 +122,17 @@ body {
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  min-height: 44px;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  user-select: none;
 }
 .btn-primary:hover {
   background-color: var(--color-brand-accent-hover);
+}
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
 /* Secondary Button */
@@ -127,12 +144,17 @@ body {
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  min-height: 44px;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  user-select: none;
 }
 .btn-secondary:hover {
   background-color: rgba(34, 34, 40, 0.06);
+}
+.btn-secondary:active {
+  transform: scale(0.98);
 }
 
 /* Card */
@@ -168,6 +190,24 @@ textarea:focus {
   outline: none !important;
 }
 
+/* Touch Input ergonomics */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  min-height: 44px;
+  font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+}
+
+@media (min-width: 640px) {
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 14px !important;
+  }
+}
+
 /* Status Badges */
 .badge-active {
   background-color: var(--color-success-bg);
@@ -175,7 +215,7 @@ textarea:focus {
   border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 500;
-  padding: 2px 10px;
+  padding: 4px 10px;
 }
 .badge-pending {
   background-color: var(--color-warning-bg);
@@ -183,7 +223,7 @@ textarea:focus {
   border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 500;
-  padding: 2px 10px;
+  padding: 4px 10px;
 }
 .badge-completed {
   background-color: rgba(34, 34, 40, 0.08);
@@ -191,7 +231,7 @@ textarea:focus {
   border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 500;
-  padding: 2px 10px;
+  padding: 4px 10px;
 }
 
 /* Table */
@@ -222,11 +262,17 @@ textarea:focus {
 .likert-card {
   border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 20px 24px;
+  padding: 16px 20px;
+  min-height: 56px;
   cursor: pointer;
   transition: all 0.15s ease;
   background-color: var(--color-bg-card);
   user-select: none;
+}
+@media (min-width: 640px) {
+  .likert-card {
+    padding: 20px 24px;
+  }
 }
 .likert-card:hover {
   border-color: var(--color-brand-accent);
@@ -234,14 +280,18 @@ textarea:focus {
   transform: translateY(-1px);
   box-shadow: var(--shadow-card);
 }
+.likert-card:active {
+  transform: scale(0.99);
+  background-color: rgba(255, 115, 0, 0.08);
+}
 .likert-card.selected {
   border-color: var(--color-brand-accent);
   background-color: rgba(255, 115, 0, 0.08);
   box-shadow: 0 0 0 1px var(--color-brand-accent);
 }
 .likert-card .likert-number {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-full);
   background-color: var(--color-bg-app);
   border: 1px solid var(--color-border);
@@ -258,6 +308,28 @@ textarea:focus {
   background-color: var(--color-brand-accent);
   border-color: var(--color-brand-accent);
   color: white;
+}
+
+/* Touch Device Helpers */
+@media (pointer: coarse) {
+  .keyboard-hint {
+    display: none !important;
+  }
+}
+
+/* Media Query Responsive Adjustments */
+@media (max-width: 640px) {
+  .oxygen-card {
+    padding: var(--space-4);
+  }
+  
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+  }
 }
 
 /* Question transition */

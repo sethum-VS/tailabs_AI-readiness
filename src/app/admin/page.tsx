@@ -177,7 +177,7 @@ export default function AdminDashboard() {
         style={{
           backgroundColor: 'var(--color-bg-card)',
           borderBottom: '1px solid var(--color-border)',
-          padding: '0 24px',
+          padding: '0 16px',
           position: 'sticky',
           top: 0,
           zIndex: 50,
@@ -191,17 +191,18 @@ export default function AdminDashboard() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            gap: '8px',
           }}
         >
           {/* Logo */}
-          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
             <Image
               src="/images/logos/tai-horizontal-primary.png"
               alt="TAI Readiness"
               width={142}
               height={40}
               priority
-              style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+              style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
             />
           </Link>
 
@@ -213,9 +214,9 @@ export default function AdminDashboard() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '6px 14px',
+                padding: '6px 12px',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '500',
                 color: 'var(--color-brand-accent)',
                 textDecoration: 'none',
@@ -223,7 +224,7 @@ export default function AdminDashboard() {
               }}
             >
               <LayoutDashboard size={15} />
-              Dashboard
+              <span className="hide-mobile">Dashboard</span>
             </Link>
             <Link
               href="/admin/distribution"
@@ -231,9 +232,9 @@ export default function AdminDashboard() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '6px 14px',
+                padding: '6px 12px',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '500',
                 color: 'var(--color-text-secondary)',
                 textDecoration: 'none',
@@ -241,7 +242,7 @@ export default function AdminDashboard() {
               className="nav-link"
             >
               <Share2 size={15} />
-              Distribution
+              <span className="hide-mobile">Distribution</span>
             </Link>
           </div>
 
@@ -253,20 +254,18 @@ export default function AdminDashboard() {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 14px',
+              padding: '6px 12px',
               fontSize: '13px',
               color: 'var(--color-text-secondary)',
               background: 'transparent',
               border: '1px solid var(--color-border)',
               borderRadius: '6px',
               cursor: loading ? 'not-allowed' : 'pointer',
+              flexShrink: 0,
             }}
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-            <span style={{ display: 'none' }}>
-              {lastRefresh.toLocaleTimeString()}
-            </span>
-            Refresh
+            <span className="hide-mobile">Refresh</span>
           </button>
         </div>
       </nav>
@@ -276,12 +275,21 @@ export default function AdminDashboard() {
         style={{
           backgroundColor: 'var(--color-bg-card)',
           borderBottom: '1px solid var(--color-border)',
-          padding: '0 24px',
+          padding: '0 16px',
         }}
       >
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           {/* Tab navigation */}
-          <div style={{ display: 'flex', gap: '0', marginTop: '0' }}>
+          <div
+            className="no-scrollbar"
+            style={{
+              display: 'flex',
+              gap: '4px',
+              marginTop: '0',
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -290,7 +298,7 @@ export default function AdminDashboard() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '14px 20px',
+                  padding: '14px 16px',
                   fontSize: '14px',
                   fontWeight: '500',
                   color: activeTab === id ? 'var(--color-brand-accent)' : 'var(--color-text-secondary)',
@@ -300,6 +308,8 @@ export default function AdminDashboard() {
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   fontFamily: 'var(--font-family)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
                 <Icon size={15} />
@@ -311,7 +321,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ─── Content ─────────────────────────────────────────────────────────── */}
-      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' }}>
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 16px' }}>
 
         {error && (
           <div
@@ -346,7 +356,7 @@ export default function AdminDashboard() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(280px, 320px) 1fr',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                     gap: '24px',
                     alignItems: 'start',
                   }}
