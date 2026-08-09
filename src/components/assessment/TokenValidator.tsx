@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { AlertCircle, RefreshCw, ShieldX, Clock } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface TokenValidatorProps {
   token: string
@@ -126,21 +127,15 @@ export function TokenValidator({ token, onValid, onInvalid }: TokenValidatorProp
         }}
       >
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '32px' }}>
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              background: 'var(--color-primary-dark)',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span style={{ color: 'var(--color-brand-accent)', fontSize: '16px', fontWeight: '700' }}>T</span>
-          </div>
-          <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--color-text-primary)' }}>TAI Readiness</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
+          <Image
+            src="/images/logos/tai-horizontal-primary.png"
+            alt="TAI Readiness"
+            width={160}
+            height={44}
+            priority
+            style={{ height: '36px', width: 'auto', objectFit: 'contain' }}
+          />
         </div>
 
         {/* Icon */}
