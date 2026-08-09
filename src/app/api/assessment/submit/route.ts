@@ -139,6 +139,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to save response' }, { status: 500 })
     }
 
+    // Update invite status based on total responses for the team / invite
+    const { count: responseCount } = await supabase
+      .from('assessment_responses')
+      .select('id', { count: 'exact', head: true })
+      .eq('team_id', team_id)
+
+    const totalCount = responseCount ?? 1
+    const targetSeats = teamData?.target_seats ?? 10
+    const newStatus = totalCount >= targetSeats ? 'completed' : 'active'
+
+    if (invite_id) {
+      await supabase
+        .from('assessment_invites')
+        .update({ status: newStatus } as never)
+        .eq('id', invite_id)
+    } else {
+      await supabase
+        .from('assessment_invites')
+        .update({ status: newStatus } as never)
+        .eq('team_id', team_id)
+    }
+
     return NextResponse.json({
       success: true,
       response_id: response.id,

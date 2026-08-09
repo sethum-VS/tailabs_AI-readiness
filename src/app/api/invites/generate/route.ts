@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     const { data: invite, error: inviteError } = await supabase
       .from('assessment_invites')
-      .insert({ team_id: teamId, token, title: 'AI Readiness Assessment', status: 'active' } as never)
+      .insert({ team_id: teamId, token, title: 'AI Readiness Assessment', status: 'pending' } as never)
       .select('id, token')
       .single() as unknown as { data: { id: string; token: string } | null; error: unknown }
 
