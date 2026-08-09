@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   description:
     'Enterprise AI readiness assessment platform. Measure, benchmark, and accelerate your team\'s AI adoption maturity across 5 critical pillars.',
   keywords: ['AI readiness', 'enterprise AI', 'Tailabs', 'assessment', 'upskilling'],
+  icons: {
+    icon: '/apple-touch-icon.png',
+    shortcut: '/apple-touch-icon.png',
+    apple: '/apple-touch-icon.png',
+  },
 }
 
 export default function RootLayout({
@@ -18,6 +23,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/apple-touch-icon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
