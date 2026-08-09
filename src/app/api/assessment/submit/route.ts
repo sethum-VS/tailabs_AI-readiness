@@ -84,6 +84,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Token team mismatch' }, { status: 403 })
     }
 
+    // Check seat limit — reject if team already has enough responses
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('target_seats')
+      .eq('id', team_id)
+      .single() as unknown as { data: { target_seats: number } | null; error: unknown }
+
+    if (teamData) {
+      const { count: existingCount } = await supabase
+        .from('assessment_responses')
+        .select('id', { count: 'exact', head: true })
+        .eq('team_id', team_id)
+
+      if (existingCount !== null && existingCount >= teamData.target_seats) {
+        return NextResponse.json(
+          { error: `This team has reached its maximum of ${teamData.target_seats} responses` },
+          { status: 409 }
+        )
+      }
+    }
     // Calculate individual score: (sum / 20) * 100
     const individual_score = calculateIndividualScore({
       tool_usage_score,

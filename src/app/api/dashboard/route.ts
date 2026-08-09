@@ -28,7 +28,7 @@ export async function GET() {
   try {
     const supabase = createAdminClient()
 
-    // 1. Fetch organization data
+    // 1. Fetch ALL organizations
     const { data: orgs } = await supabase
       .from('organizations')
       .select('id, name, aggregate_score')
@@ -46,20 +46,21 @@ export async function GET() {
       })
     }
 
-    const org = orgs[0] // Primary org
+    const primaryOrg = orgs[0]
 
-    // 2. Fetch all teams for this org
+    // 2. Fetch ALL teams across ALL organizations
+    const allOrgIds = orgs.map((o) => o.id)
     const { data: teams } = await supabase
       .from('teams')
       .select('id, name, aggregate_score, target_seats, organization_id')
-      .eq('organization_id', org.id)
+      .in('organization_id', allOrgIds)
       .order('name') as unknown as { data: TeamRow[] | null }
 
     if (!teams || teams.length === 0) {
       return NextResponse.json({
         has_data: false,
-        org_score: org.aggregate_score,
-        org_name: org.name,
+        org_score: primaryOrg.aggregate_score,
+        org_name: primaryOrg.name,
         teams: [],
         recommendations: [],
         total_responses: 0,
@@ -137,7 +138,7 @@ export async function GET() {
       }
     })
 
-    // 6. Compute org-level pillar averages (mean of team pillar averages)
+    // 6. Compute org-level pillar averages (mean of team pillar averages across ALL orgs)
     const teamsWithData = enrichedTeams.filter((t) => t.response_count > 0)
     const orgPillarAverages: TeamPillarAverages = teamsWithData.length > 0
       ? {
@@ -149,7 +150,10 @@ export async function GET() {
         }
       : { tool_usage: 0, workflow_automation: 0, data_literacy: 0, output_evaluation: 0, leadership_buyin: 0 }
 
-    // 7. Get recommendations from DB rules
+    // 7. Compute overall org score as average of all org aggregate_scores
+    const overallOrgScore = orgs.reduce((s, o) => s + Number(o.aggregate_score), 0) / orgs.length
+
+    // 8. Get recommendations from DB rules
     const { data: rules } = await supabase
       .from('recommendation_rules')
       .select('id, pillar, threshold_max, title, description, action_label, action_url') as unknown as {
@@ -163,8 +167,8 @@ export async function GET() {
 
     return NextResponse.json({
       has_data: totalResponses > 0,
-      org_score: org.aggregate_score,
-      org_name: org.name,
+      org_score: Math.round(overallOrgScore * 100) / 100,
+      org_name: primaryOrg.name,
       org_pillar_averages: orgPillarAverages,
       teams: enrichedTeams,
       recommendations,
