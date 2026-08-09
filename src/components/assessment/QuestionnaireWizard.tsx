@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import { ChevronRight, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react'
 import { PillarIcon } from '@/components/common/PillarIcon'
@@ -232,6 +232,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
   const [finalScore, setFinalScore] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [animating, setAnimating] = useState(false)
+  const submittedRef = useRef(false)
 
   const currentPillarData = PILLARS[currentPillar]
   const currentSelection = currentPillarData ? scores[currentPillarData.key] : undefined
@@ -313,6 +314,9 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
   // ─── Submit ────────────────────────────────────────────────────────────────
 
   const handleSubmit = async () => {
+    // Guard against duplicate rapid-fire submissions
+    if (submittedRef.current) return
+    submittedRef.current = true
     setSubmitting(true)
     try {
       const payload = {
