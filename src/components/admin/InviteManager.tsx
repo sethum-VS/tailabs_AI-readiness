@@ -13,7 +13,7 @@ import {
   AlertCircle,
   ChevronRight,
   Building2,
-  Send,
+  ExternalLink,
 } from 'lucide-react'
 import {
   Dialog,
@@ -514,8 +514,9 @@ export function InviteManager() {
                         </button>
                         <button
                           onClick={() => {
-                            handleCopy(invite.invite_url, invite.id)
-                            toast.info('Reminder link ready to share via your communication tool')
+                            if (invite.invite_url) {
+                              window.open(invite.invite_url, '_blank', 'noopener,noreferrer')
+                            }
                           }}
                           style={{
                             display: 'flex',
@@ -531,8 +532,8 @@ export function InviteManager() {
                             cursor: 'pointer',
                           }}
                         >
-                          <Send size={12} />
-                          Resend
+                          <ExternalLink size={12} />
+                          Open link
                         </button>
                       </div>
                     </td>
