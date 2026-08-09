@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { ChevronRight, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react'
+import { PillarIcon } from '@/components/common/PillarIcon'
 import Image from 'next/image'
 import type { TokenContext } from './TokenValidator'
 
@@ -23,45 +24,45 @@ type WizardStep = 'identity' | 'question' | 'success'
 
 const PILLARS: Array<{
   key: PillarKey
+  pillarKey: string
   pillar: string
   question: string
   helper: string
-  icon: string
 }> = [
   {
     key: 'tool_usage_score',
+    pillarKey: 'tool_usage',
     pillar: 'Tool Usage',
     question: 'How frequently do you use AI to generate first drafts, write code, or summarize complex data?',
     helper: 'Think about tools like Claude, ChatGPT, GitHub Copilot, or any AI assistant in your daily work.',
-    icon: '🔧',
   },
   {
     key: 'workflow_automation_score',
+    pillarKey: 'workflow_automation',
     pillar: 'Workflow Automation',
     question: 'Do you currently use AI as a standalone chat tool, or is it embedded in your daily workflows (e.g., Zapier, CRM, IDE, terminal)?',
     helper: 'Consider how integrated AI is into your actual work processes vs. occasional manual queries.',
-    icon: '⚙️',
   },
   {
     key: 'data_literacy_score',
+    pillarKey: 'data_literacy',
     pillar: 'Data Literacy',
     question: 'How confident are you in writing structured prompts that include system context, precise formatting rules, and edge-case constraints?',
     helper: 'This measures your ability to communicate precisely with AI systems to get reliable, structured outputs.',
-    icon: '📊',
   },
   {
     key: 'output_evaluation_score',
+    pillarKey: 'output_evaluation',
     pillar: 'Output Evaluation',
     question: 'When an AI model provides an answer, how strictly do you evaluate it for hallucinations, logical errors, and data privacy compliance before deployment?',
     helper: 'Consider your process for verifying AI outputs before using them in real work or sharing with others.',
-    icon: '🔍',
   },
   {
     key: 'leadership_buyin_score',
+    pillarKey: 'leadership_buyin',
     pillar: 'Leadership Buy-in',
     question: 'Does your immediate manager actively encourage, incentivize, or mandate using AI to reduce operational drag?',
     helper: 'Reflect on whether AI adoption is supported, rewarded, or required by your leadership team.',
-    icon: '🎯',
   },
 ]
 
@@ -523,7 +524,21 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
             <div key={currentPillar} className="question-enter" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* Pillar label */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '24px' }}>{currentPillarData.icon}</span>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    background: 'rgba(255, 115, 0, 0.1)',
+                    border: '1px solid rgba(255, 115, 0, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <PillarIcon pillar={currentPillarData.pillarKey} size={20} color="var(--color-brand-accent)" />
+                </div>
                 <div>
                   <div
                     style={{

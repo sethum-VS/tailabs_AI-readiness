@@ -1,9 +1,10 @@
 'use client'
 
 import { Skeleton } from '@/components/ui/skeleton'
-import { PILLAR_ICONS, PILLAR_LABELS, STATUS_COLORS, getScoreStatus } from '@/lib/scoringEngine'
+import { PILLAR_LABELS, STATUS_COLORS, getScoreStatus } from '@/lib/scoringEngine'
 import type { Recommendation } from '@/lib/scoringEngine'
 import { ExternalLink, BookOpen, Sparkles, CheckCircle2 } from 'lucide-react'
+import { PillarIcon } from '@/components/common/PillarIcon'
 import Link from 'next/link'
 
 interface ActionMatrixProps {
@@ -47,11 +48,10 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '20px',
             flexShrink: 0,
           }}
         >
-          {PILLAR_ICONS[rec.pillar] ?? '📌'}
+          <PillarIcon pillar={rec.pillar} size={20} color={color} />
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
@@ -237,8 +237,9 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
             <CheckCircle2 size={32} color="var(--color-success)" />
           </div>
           <div>
-            <h4 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)', margin: '0 0 8px' }}>
-              🎉 All Pillars Performing Well!
+            <h4 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={20} color="var(--color-warning)" />
+              <span>All Pillars Performing Well!</span>
             </h4>
             <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0, maxWidth: '400px' }}>
               All team pillar scores are above 50%. No targeted interventions required at this time.

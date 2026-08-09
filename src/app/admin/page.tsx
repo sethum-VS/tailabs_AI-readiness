@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Share2, RefreshCw, BarChart2, LayoutDashboard, Settings } from 'lucide-react'
+import { Share2, RefreshCw, BarChart2, LayoutDashboard, Settings, Construction } from 'lucide-react'
+import { PillarIcon } from '@/components/common/PillarIcon'
 import { MacroScorecard } from '@/components/admin/MacroScorecard'
 import { TeamDisparityChart } from '@/components/admin/TeamDisparityChart'
 import { ActionMatrix } from '@/components/admin/ActionMatrix'
@@ -392,11 +393,11 @@ export default function AdminDashboard() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
                 {(data?.teams ?? []).map((team) => {
                   const pillars = [
-                    { label: '🔧 Tool Usage', score: team.pillar_averages.tool_usage },
-                    { label: '⚙️ Workflow', score: team.pillar_averages.workflow_automation },
-                    { label: '📊 Data Literacy', score: team.pillar_averages.data_literacy },
-                    { label: '🔍 Output Eval', score: team.pillar_averages.output_evaluation },
-                    { label: '🎯 Leadership', score: team.pillar_averages.leadership_buyin },
+                    { pillarKey: 'tool_usage', label: 'Tool Usage', score: team.pillar_averages.tool_usage },
+                    { pillarKey: 'workflow_automation', label: 'Workflow', score: team.pillar_averages.workflow_automation },
+                    { pillarKey: 'data_literacy', label: 'Data Literacy', score: team.pillar_averages.data_literacy },
+                    { pillarKey: 'output_evaluation', label: 'Output Eval', score: team.pillar_averages.output_evaluation },
+                    { pillarKey: 'leadership_buyin', label: 'Leadership', score: team.pillar_averages.leadership_buyin },
                   ]
 
                   const scoreColor =
@@ -415,10 +416,13 @@ export default function AdminDashboard() {
                         {team.response_count} / {team.target_seats} responses
                       </p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {pillars.map(({ label, score }) => (
-                          <div key={label}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{label}</span>
+                        {pillars.map(({ pillarKey, label, score }) => (
+                          <div key={pillarKey}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', alignItems: 'center' }}>
+                              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <PillarIcon pillar={pillarKey} size={14} />
+                                <span>{label}</span>
+                              </span>
                               <span style={{ fontSize: '12px', fontWeight: '500' }}>{score}%</span>
                             </div>
                             <div style={{ height: '4px', background: 'var(--color-border)', borderRadius: '999px', overflow: 'hidden' }}>
@@ -457,9 +461,13 @@ export default function AdminDashboard() {
                 borderRadius: '8px',
                 fontSize: '13px',
                 color: 'var(--color-text-secondary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
               }}
             >
-              🚧 Coming soon: Organization name, assessment window, team management, and notification settings.
+              <Construction size={18} color="var(--color-warning)" style={{ flexShrink: 0 }} />
+              <span>Coming soon: Organization name, assessment window, team management, and notification settings.</span>
             </div>
           </div>
         )}
