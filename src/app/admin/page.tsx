@@ -8,6 +8,7 @@ import { PillarIcon } from '@/components/common/PillarIcon'
 import { MacroScorecard } from '@/components/admin/MacroScorecard'
 import { TeamDisparityChart } from '@/components/admin/TeamDisparityChart'
 import { ActionMatrix } from '@/components/admin/ActionMatrix'
+import { DashboardSkeleton } from '@/components/admin/DashboardSkeleton'
 import type { Recommendation } from '@/lib/scoringEngine'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -168,6 +169,10 @@ export default function AdminDashboard() {
     { id: 'departments', label: 'Departments', icon: BarChart2 },
     { id: 'settings', label: 'Settings', icon: Settings },
   ] as const
+
+  if (loading && !data) {
+    return <DashboardSkeleton />
+  }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-app)' }}>
