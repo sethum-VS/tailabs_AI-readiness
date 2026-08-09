@@ -1,6 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-outline-variant: #c8c5cb;
+  --color-on-secondary: #ffffff;
+  --color-text-disabled: #9E9E9E;
+  --color-surface-container-highest: #e0e3e6;
+  --color-on-error-container: #93000a;
+  --color-success: #4CAF50;
+  --color-primary-fixed-dim: #c8c5cd;
+  --color-primary: #0c0c12;
+  --color-on-tertiary-container: #0095be;
+  --color-info: #0277BD;
+  --color-primary-container: #222228;
+  --color-outline: #78767b;
+  --color-tertiary-fixed: #bde9ff;
+  --color-on-primary: #ffffff;
+  --color-on-secondary-fixed: #331100;
+  --color-on-surface-variant: #47464b;
+  --color-tertiary-container: #002633;
+  --color-secondary-fixed-dim: #ffb68f;
+  --color-surface-tint: #5e5e65;
+  --color-surface-pure: #FFFFFF;
+  --color-surface-container-high: #e6e8eb;
+  --color-error-container: #ffdad6;
+  --color-text-primary: #222228;
+  --color-surface-dim: #e0e3e6;
+  --color-on-error: #ffffff;
+  --color-border-subtle: #E0E0E0;
+  --color-surface-container: #eceef1;
+  --color-secondary: #9d4400;
+  --color-surface: #f7f9fc;
+  --color-on-tertiary: #ffffff;
+  --color-warning: #FF9800;
+  --color-on-primary-fixed: #1b1b21;
+  --color-on-primary-fixed-variant: #47464d;
+  --color-primary-fixed: #e4e1e9;
+  --color-on-primary-container: #8a8990;
+  --color-secondary-fixed: #ffdbca;
+  --color-border-input: #BDBDBD;
+  --color-on-surface: #191c1e;
+  --color-inverse-primary: #c8c5cd;
+  --color-background: #f7f9fc;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-secondary-fixed-variant: #773200;
+  --color-on-secondary-container: #582300;
+  --color-text-secondary: #666666;
+  --color-on-tertiary-fixed: #001f2a;
+  --color-surface-container-low: #f2f4f7;
+  --color-surface-bright: #f7f9fc;
+  --color-on-background: #191c1e;
+  --color-secondary-container: #fd7200;
+  --color-surface-variant: #e0e3e6;
+  --color-inverse-surface: #2d3133;
+  --color-on-tertiary-fixed-variant: #004d64;
+  --color-error: #F44336;
+  --color-tertiary: #000e15;
+  --color-tertiary-fixed-dim: #67d3ff;
+  --color-inverse-on-surface: #eff1f4;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-base: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-card-padding: 24px;
+  --spacing-container-max: 600px;
+}
+
 /* ─── Oxygen UI Design Tokens ──────────────────────────────────────────────── */
 :root {
   /* Brand Colors */
@@ -412,4 +480,32 @@ nextjs-portal,
 [data-nextjs-dev-overlay-button],
 #nextjs-dev-tools {
   display: none !important;
+}
+
+/* ─── Skeleton Loading Utilities ────────────────────────────────────────────── */
+.skeleton-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.text-label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+.max-w-container-max {
+  max-width: 600px;
+}
+
+.p-card-padding {
+  padding: 24px;
 }
