@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Share2, RefreshCw, BarChart2, LayoutDashboard, Settings, Construction } from 'lucide-react'
+import { Share2, RefreshCw, BarChart2, LayoutDashboard, Settings, Construction, LogOut } from 'lucide-react'
 import { PillarIcon } from '@/components/common/PillarIcon'
 import { MacroScorecard } from '@/components/admin/MacroScorecard'
 import { TeamDisparityChart } from '@/components/admin/TeamDisparityChart'
@@ -138,11 +139,22 @@ function AdminEmptyState() {
 // ─── Main Admin Dashboard ─────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
+  const router = useRouter()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'departments' | 'settings'>('overview')
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setLoggingOut(true)
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } finally {
+      router.push('/login')
+    }
+  }
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true)
@@ -463,26 +475,59 @@ export default function AdminDashboard() {
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="oxygen-card" style={{ maxWidth: '560px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 16px' }}>Settings</h2>
-            <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '0 0 24px' }}>
-              Organization configuration and assessment settings will be available here in a future update.
-            </p>
-            <div
-              style={{
-                padding: '16px',
-                background: 'var(--color-bg-app)',
-                border: '1px solid var(--color-border)',
-                borderRadius: '8px',
-                fontSize: '13px',
-                color: 'var(--color-text-secondary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Construction size={18} color="var(--color-warning)" style={{ flexShrink: 0 }} />
-              <span>Coming soon: Organization name, assessment window, team management, and notification settings.</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '560px' }}>
+            <div className="oxygen-card">
+              <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 16px' }}>Settings</h2>
+              <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '0 0 24px' }}>
+                Organization configuration and assessment settings will be available here in a future update.
+              </p>
+              <div
+                style={{
+                  padding: '16px',
+                  background: 'var(--color-bg-app)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  color: 'var(--color-text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <Construction size={18} color="var(--color-warning)" style={{ flexShrink: 0 }} />
+                <span>Coming soon: Organization name, assessment window, team management, and notification settings.</span>
+              </div>
+            </div>
+
+            {/* Log Out Card */}
+            <div className="oxygen-card" style={{ borderColor: 'rgba(244,67,54,0.2)' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: '600', margin: '0 0 8px', color: 'var(--color-text-primary)' }}>
+                Session
+              </h3>
+              <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '0 0 20px', lineHeight: '1.5' }}>
+                This is a demo session. Logging out will permanently delete all data associated with your current session — including teams, invite links, and assessment responses.
+              </p>
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 20px',
+                  background: loggingOut ? 'rgba(244,67,54,0.4)' : 'rgba(244,67,54,0.08)',
+                  border: '1px solid rgba(244,67,54,0.3)',
+                  borderRadius: '8px',
+                  color: '#c62828',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: loggingOut ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <LogOut size={15} />
+                {loggingOut ? 'Signing out...' : 'Log Out & Clear Data'}
+              </button>
             </div>
           </div>
         )}

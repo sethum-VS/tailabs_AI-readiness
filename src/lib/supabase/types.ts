@@ -16,6 +16,7 @@ export type Database = {
           created_at: string
           updated_at: string
           aggregate_score: number
+          guest_id: string | null
         }
         Insert: {
           id?: string
@@ -23,6 +24,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
           aggregate_score?: number
+          guest_id?: string | null
         }
         Update: {
           id?: string
@@ -30,6 +32,30 @@ export type Database = {
           created_at?: string
           updated_at?: string
           aggregate_score?: number
+          guest_id?: string | null
+        }
+      }
+      guest_sessions: {
+        Row: {
+          id: string
+          guest_id: string
+          org_id: string | null
+          created_at: string
+          last_seen_at: string
+        }
+        Insert: {
+          id?: string
+          guest_id: string
+          org_id?: string | null
+          created_at?: string
+          last_seen_at?: string
+        }
+        Update: {
+          id?: string
+          guest_id?: string
+          org_id?: string | null
+          created_at?: string
+          last_seen_at?: string
         }
       }
       teams: {

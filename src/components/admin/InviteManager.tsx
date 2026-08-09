@@ -215,8 +215,8 @@ export function InviteManager() {
 
   const handleGenerate = async () => {
     const teamName = selectedTeam === '__custom__' ? customTeam : selectedTeam
-    if (!orgName.trim() || !teamName.trim()) {
-      toast.error('Please fill in all required fields')
+    if (!teamName.trim()) {
+      toast.error('Please select or enter a team name')
       return
     }
 
@@ -226,7 +226,6 @@ export function InviteManager() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          organization_name: orgName.trim(),
           team_name: teamName.trim(),
           target_seats: targetSeats,
         }),
@@ -587,19 +586,6 @@ export function InviteManager() {
 
           {!generatedUrl ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '8px' }}>
-              {/* Organization */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <Label htmlFor="org-name" style={{ fontSize: '13px', fontWeight: '500' }}>
-                  Organization Name <span style={{ color: 'var(--color-danger)' }}>*</span>
-                </Label>
-                <Input
-                  id="org-name"
-                  placeholder="e.g. Acme Corp"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                  style={{ fontSize: '14px' }}
-                />
-              </div>
 
               {/* Team */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -690,7 +676,7 @@ export function InviteManager() {
                 <button
                   className="btn-primary"
                   onClick={handleGenerate}
-                  disabled={generating || !orgName.trim() || (!selectedTeam || (selectedTeam === '__custom__' && !customTeam.trim()))}
+                  disabled={generating || (!selectedTeam || (selectedTeam === '__custom__' && !customTeam.trim()))}
                   style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: generating ? 0.7 : 1 }}
                 >
                   {generating ? (

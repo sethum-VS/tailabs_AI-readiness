@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { getRecommendations, type RecommendationRule, type TeamPillarAverages } from '@/lib/scoringEngine'
 
@@ -24,17 +24,25 @@ interface OrgRow {
   aggregate_score: number
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Org ID is injected by middleware from the tai_guest_id cookie
+    const orgId = request.headers.get('x-tai-org-id')
+
+    if (!orgId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = createAdminClient()
 
-    // 1. Fetch ALL organizations
-    const { data: orgs } = await supabase
+    // 1. Fetch this guest's organization only
+    const { data: org } = await supabase
       .from('organizations')
       .select('id, name, aggregate_score')
-      .order('created_at', { ascending: true }) as unknown as { data: OrgRow[] | null }
+      .eq('id', orgId)
+      .maybeSingle() as unknown as { data: OrgRow | null }
 
-    if (!orgs || orgs.length === 0) {
+    if (!org) {
       return NextResponse.json({
         has_data: false,
         org_score: 0,
@@ -43,28 +51,27 @@ export async function GET() {
         recommendations: [],
         total_responses: 0,
         teams_assessed: 0,
+        total_teams: 0,
       })
     }
 
-    const primaryOrg = orgs[0]
-
-    // 2. Fetch ALL teams across ALL organizations
-    const allOrgIds = orgs.map((o) => o.id)
+    // 2. Fetch teams for this org only
     const { data: teams } = await supabase
       .from('teams')
       .select('id, name, aggregate_score, target_seats, organization_id')
-      .in('organization_id', allOrgIds)
+      .eq('organization_id', orgId)
       .order('name') as unknown as { data: TeamRow[] | null }
 
     if (!teams || teams.length === 0) {
       return NextResponse.json({
         has_data: false,
-        org_score: primaryOrg.aggregate_score,
-        org_name: primaryOrg.name,
+        org_score: org.aggregate_score,
+        org_name: org.name,
         teams: [],
         recommendations: [],
         total_responses: 0,
         teams_assessed: 0,
+        total_teams: 0,
       })
     }
 
@@ -150,8 +157,8 @@ export async function GET() {
         }
       : { tool_usage: 0, workflow_automation: 0, data_literacy: 0, output_evaluation: 0, leadership_buyin: 0 }
 
-    // 7. Compute overall org score as average of all org aggregate_scores
-    const overallOrgScore = orgs.reduce((s, o) => s + Number(o.aggregate_score), 0) / orgs.length
+    // 7. Use this org's aggregate_score
+    const overallOrgScore = Number(org.aggregate_score)
 
     // 8. Get recommendations from DB rules
     const { data: rules } = await supabase
@@ -168,7 +175,7 @@ export async function GET() {
     return NextResponse.json({
       has_data: totalResponses > 0,
       org_score: Math.round(overallOrgScore * 100) / 100,
-      org_name: primaryOrg.name,
+      org_name: org.name,
       org_pillar_averages: orgPillarAverages,
       teams: enrichedTeams,
       recommendations,
