@@ -64,7 +64,7 @@ export type Database = {
           team_id: string
           token: string
           title: string
-          status: 'active' | 'completed' | 'expired'
+          status: 'pending' | 'active' | 'completed' | 'expired'
           created_at: string
           expires_at: string
         }
@@ -73,7 +73,7 @@ export type Database = {
           team_id: string
           token: string
           title?: string
-          status?: 'active' | 'completed' | 'expired'
+          status?: 'pending' | 'active' | 'completed' | 'expired'
           created_at?: string
           expires_at?: string
         }
@@ -82,7 +82,7 @@ export type Database = {
           team_id?: string
           token?: string
           title?: string
-          status?: 'active' | 'completed' | 'expired'
+          status?: 'pending' | 'active' | 'completed' | 'expired'
           created_at?: string
           expires_at?: string
         }

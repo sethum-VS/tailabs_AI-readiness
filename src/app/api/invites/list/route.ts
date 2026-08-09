@@ -5,7 +5,7 @@ interface InviteWithRelations {
   id: string
   token: string
   title: string
-  status: 'active' | 'completed' | 'expired'
+  status: 'pending' | 'active' | 'completed' | 'expired'
   created_at: string
   expires_at: string
   team_id: string
@@ -90,13 +90,33 @@ export async function GET() {
       const responseCount = responseCounts[invite.id] ?? 0
       const targetSeats = team?.target_seats ?? 10
 
+      let computedStatus: 'pending' | 'active' | 'completed' | 'expired' = invite.status
+
+      if (new Date(invite.expires_at) < new Date() && responseCount < targetSeats) {
+        computedStatus = 'expired'
+      } else if (responseCount >= targetSeats) {
+        computedStatus = 'completed'
+      } else if (responseCount > 0) {
+        computedStatus = 'active'
+      } else {
+        computedStatus = 'pending'
+      }
+
+      if (invite.status !== computedStatus) {
+        supabase
+          .from('assessment_invites')
+          .update({ status: computedStatus } as never)
+          .eq('id', invite.id)
+          .then()
+      }
+
       return {
         id: invite.id,
         token: invite.token,
         masked_token: `${invite.token.slice(0, 8)}...${invite.token.slice(-6)}`,
         invite_url: `${appUrl}/eval/invite?token=${invite.token}`,
         title: invite.title,
-        status: invite.status,
+        status: computedStatus,
         created_at: invite.created_at,
         expires_at: invite.expires_at,
         team_id: invite.team_id,

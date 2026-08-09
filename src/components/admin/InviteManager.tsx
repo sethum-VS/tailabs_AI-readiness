@@ -35,7 +35,7 @@ interface InviteRow {
   masked_token: string
   invite_url: string
   title: string
-  status: 'active' | 'completed' | 'expired'
+  status: 'pending' | 'active' | 'completed' | 'expired'
   created_at: string
   expires_at: string
   team_id: string
@@ -52,6 +52,11 @@ const PRESET_TEAMS = ['Engineering', 'Sales', 'Operations', 'Marketing', 'Custom
 
 function StatusBadge({ status }: { status: InviteRow['status'] }) {
   const config = {
+    pending: {
+      label: 'Pending',
+      cls: 'badge-pending',
+      Icon: Clock,
+    },
     active: {
       label: 'Active',
       cls: 'badge-active',
@@ -67,7 +72,11 @@ function StatusBadge({ status }: { status: InviteRow['status'] }) {
       cls: 'badge-pending',
       Icon: AlertCircle,
     },
-  }[status]
+  }[status] ?? {
+    label: 'Pending',
+    cls: 'badge-pending',
+    Icon: Clock,
+  }
 
   return (
     <span className={config.cls} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -313,6 +322,12 @@ export function InviteManager() {
             label: 'Total Links',
             value: invites.length,
             color: 'var(--color-brand-accent)',
+          },
+          {
+            icon: Clock,
+            label: 'Pending',
+            value: invites.filter((i) => i.status === 'pending').length,
+            color: '#E65100',
           },
           {
             icon: CheckCircle2,
