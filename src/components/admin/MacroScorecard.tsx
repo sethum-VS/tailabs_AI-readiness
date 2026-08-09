@@ -60,7 +60,7 @@ export function MacroScorecard({
 
   if (loading) {
     return (
-      <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '24px 16px' }}>
+      <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', height: '100%', gap: '20px', padding: '24px 16px' }}>
         <Skeleton className="h-6 w-40" />
         <Skeleton className="rounded-full" style={{ width: '180px', height: '180px' }} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', width: '100%' }}>
@@ -76,7 +76,7 @@ export function MacroScorecard({
   }
 
   return (
-    <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '24px 16px' }}>
+    <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', height: '100%', gap: '20px', padding: '24px 16px' }}>
       {/* Title */}
       <div style={{ textAlign: 'center' }}>
         <h3 style={{ fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-secondary)', margin: '0 0 4px' }}>

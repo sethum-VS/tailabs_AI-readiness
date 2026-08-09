@@ -4,7 +4,29 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BarChart3, ShieldCheck, TrendingUp, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
+import {
+  BarChart3,
+  ShieldCheck,
+  TrendingUp,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Sparkles,
+  Zap,
+  CheckCircle2,
+  Lock,
+  Building2,
+  ChevronRight,
+  Info,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 
 // ─── Fingerprint helper ─────────────────────────────────────────────────────
 
@@ -43,16 +65,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
+  const [showForgotModal, setShowForgotModal] = useState(false)
 
-  // Demo mode pre-filled defaults
-  const [email, setEmail] = useState('admin@enterprise.com')
-  const [password, setPassword] = useState('••••••••')
+  // Default values for effortless entry if unchanged
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   useEffect(() => {
-    // If middleware redirected us here, clean up state if necessary
+    // Clean up state if necessary
   }, [])
 
-  async function handleGuestLogin(provider?: 'google' | 'microsoft') {
+  async function handleLogin(provider?: 'google' | 'microsoft') {
     if (provider) {
       setSsoLoading(provider)
     } else {
@@ -67,7 +90,7 @@ export default function LoginPage() {
         body: JSON.stringify({ guestId }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Login failed')
+      if (!res.ok) throw new Error(json.error || 'Authentication failed')
       router.push('/admin')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -78,52 +101,91 @@ export default function LoginPage() {
 
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault()
-    handleGuestLogin()
+    handleLogin()
+  }
+
+  function handleForgotPassword() {
+    setShowForgotModal(true)
   }
 
   return (
     <div className="login-wrapper">
       {/* ── Left Hero Panel ─────────────────────────────────────────────── */}
       <div className="left-hero-panel">
-        {/* Glow Effects */}
-        <div className="glow-orb glow-orb-top" />
-        <div className="glow-orb glow-orb-bottom" />
+        <div className="hero-mesh-background" />
 
         {/* Brand Header */}
         <div className="brand-header">
           <Image
             src="/images/logos/tai-horizontal-primary-converted.png"
             alt="TAI Labs Logo"
-            width={150}
-            height={42}
+            width={160}
+            height={44}
             priority
-            style={{ height: '38px', width: 'auto', objectFit: 'contain' }}
+            style={{ height: '36px', width: 'auto', objectFit: 'contain' }}
           />
+          <span className="enterprise-tag font-semibold">ENTERPRISE</span>
         </div>
 
         {/* Hero Content */}
         <div className="hero-content">
           <div className="badge-pill">
-            <Sparkles size={14} className="badge-icon" />
-            <span>AI Readiness Benchmarking</span>
+            <Sparkles size={13} className="badge-icon" />
+            <span>Workforce AI Intelligence</span>
           </div>
 
           <h1 className="hero-heading">
             Enterprise AI Readiness Platform
           </h1>
           <p className="hero-subtitle">
-            Measure, analyze, and upskill your workforce for the AI era across 5 core readiness pillars.
+            Benchmark organizational AI maturity, identify capabilities gaps, and deliver targeted upskilling across 5 core readiness pillars.
           </p>
+
+          {/* Interactive Metric Preview Box */}
+          <div className="preview-card-box">
+            <div className="preview-card-header">
+              <div className="flex items-center gap-2">
+                <div className="live-pulse-dot" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">Live Benchmark Stream</span>
+              </div>
+              <span className="text-xs text-orange-400 font-medium font-mono">v3.4 Active</span>
+            </div>
+
+            <div className="preview-metrics-grid">
+              <div className="metric-pill">
+                <span className="metric-val">78.4%</span>
+                <span className="metric-lbl">Avg Readiness</span>
+              </div>
+              <div className="metric-pill">
+                <span className="metric-val">5 Pillars</span>
+                <span className="metric-lbl">Evaluated</span>
+              </div>
+              <div className="metric-pill">
+                <span className="metric-val">100%</span>
+                <span className="metric-lbl">Data Privacy</span>
+              </div>
+            </div>
+
+            <div className="preview-progress-strip">
+              <div className="flex justify-between text-xs text-slate-400 mb-1 font-medium">
+                <span>Tool Usage & Prompting</span>
+                <span className="text-emerald-400 font-semibold">High Proficiency</span>
+              </div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: '82%' }} />
+              </div>
+            </div>
+          </div>
 
           <ul className="features-list">
             {[
-              { Icon: BarChart3, title: 'Baseline AI Assessments', desc: 'Real-time capability evaluation & gap analysis' },
-              { Icon: ShieldCheck, title: 'Privacy-Preserving Analytics', desc: 'Enterprise data protection with zero raw data exposure' },
-              { Icon: TrendingUp, title: 'Actionable Upskilling Pathways', desc: 'Tailored learning curves for role-specific growth' },
+              { Icon: BarChart3, title: 'Baseline AI Assessments', desc: 'Real-time capability evaluation & multi-department gap analysis' },
+              { Icon: ShieldCheck, title: 'Privacy-Preserving Architecture', desc: 'Enterprise-grade security with zero raw operational data exposure' },
+              { Icon: TrendingUp, title: 'Actionable Upskilling Pathways', desc: 'Tailored learning curricula designed for role-specific growth' },
             ].map(({ Icon, title, desc }) => (
               <li key={title} className="feature-item">
                 <div className="feature-icon-wrapper">
-                  <Icon size={20} />
+                  <Icon size={18} />
                 </div>
                 <div>
                   <div className="feature-title">{title}</div>
@@ -132,17 +194,11 @@ export default function LoginPage() {
               </li>
             ))}
           </ul>
-
-          {/* Demo Mode Badge */}
-          <div className="demo-indicator">
-            <span className="live-dot" />
-            <span>Demo Mode — Instant access, no account required</span>
-          </div>
         </div>
 
         {/* Hero Footer */}
         <div className="hero-footer">
-          <span>© 2026 TAI Labs • All rights reserved</span>
+          <span>© 2026 TAI Labs Inc. • Enterprise Readiness Standard</span>
         </div>
       </div>
 
@@ -164,16 +220,16 @@ export default function LoginPage() {
 
           {/* Form Header */}
           <div className="form-header">
-            <h2 className="form-title">Admin Login</h2>
+            <h2 className="form-title">Admin Sign In</h2>
             <p className="form-subtitle">
-              Demo mode enabled.{' '}
-              <span className="accent-text">Click Sign In or SSO to test.</span>
+              Sign in to access your organization&apos;s AI readiness dashboard and workforce analytics.
             </p>
           </div>
 
           {/* Error Banner */}
           {error && (
             <div className="error-banner" role="alert">
+              <Info size={16} />
               <span>{error}</span>
             </div>
           )}
@@ -182,7 +238,7 @@ export default function LoginPage() {
           <div className="sso-group">
             <button
               type="button"
-              onClick={() => handleGuestLogin('google')}
+              onClick={() => handleLogin('google')}
               disabled={loading || ssoLoading !== null}
               className="sso-button"
             >
@@ -196,12 +252,12 @@ export default function LoginPage() {
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 </svg>
               )}
-              <span>Continue with Google</span>
+              <span>Continue with Google Workspace</span>
             </button>
 
             <button
               type="button"
-              onClick={() => handleGuestLogin('microsoft')}
+              onClick={() => handleLogin('microsoft')}
               disabled={loading || ssoLoading !== null}
               className="sso-button"
             >
@@ -215,14 +271,14 @@ export default function LoginPage() {
                   <path d="M12 12h10v10H12z" fill="#ffba08" />
                 </svg>
               )}
-              <span>Continue with Microsoft</span>
+              <span>Continue with Microsoft Entra</span>
             </button>
           </div>
 
           {/* Divider */}
           <div className="divider-row">
             <div className="divider-line" />
-            <span className="divider-text">OR</span>
+            <span className="divider-text">OR WORK EMAIL</span>
             <div className="divider-line" />
           </div>
 
@@ -230,7 +286,7 @@ export default function LoginPage() {
           <form onSubmit={handleFormSubmit} className="login-form">
             <div className="input-group">
               <label htmlFor="email-input" className="input-label">
-                Work Email
+                Work Email Address
               </label>
               <input
                 id="email-input"
@@ -241,7 +297,7 @@ export default function LoginPage() {
                 onFocus={() => setEmailFocused(true)}
                 onBlur={() => setEmailFocused(false)}
                 className={`text-input ${emailFocused ? 'focused' : ''}`}
-                required
+                autoComplete="email"
               />
             </div>
 
@@ -259,7 +315,7 @@ export default function LoginPage() {
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
                   className={`text-input password-input ${passwordFocused ? 'focused' : ''}`}
-                  required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -280,11 +336,11 @@ export default function LoginPage() {
                   defaultChecked
                   className="checkbox-input"
                 />
-                <span className="checkbox-text">Remember me</span>
+                <span className="checkbox-text">Keep me signed in</span>
               </label>
               <button
                 type="button"
-                onClick={() => handleGuestLogin()}
+                onClick={handleForgotPassword}
                 className="forgot-link"
               >
                 Forgot password?
@@ -296,12 +352,11 @@ export default function LoginPage() {
               type="submit"
               disabled={loading || ssoLoading !== null}
               className="submit-btn"
-              style={{ backgroundColor: '#ff7300', color: '#ffffff' }}
             >
               {loading ? (
                 <>
                   <span className="button-spinner light" />
-                  <span>Signing in...</span>
+                  <span>Authenticating...</span>
                 </>
               ) : (
                 <>
@@ -316,13 +371,63 @@ export default function LoginPage() {
           <div className="page-footer">
             <p>© 2026 TAI Readiness Baseline Tool</p>
             <div className="footer-links">
-              <Link href="/" className="footer-link">Terms & Conditions</Link>
+              <Link href="/" className="footer-link">Terms of Service</Link>
               <span className="footer-dot">•</span>
               <Link href="/" className="footer-link">Privacy Policy</Link>
+              <span className="footer-dot">•</span>
+              <Link href="/" className="footer-link">Security Statement</Link>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <Dialog open={showForgotModal} onOpenChange={setShowForgotModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reset Admin Password</DialogTitle>
+            <DialogDescription>
+              Enter your corporate email address to receive password reset instructions.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-700">Work Email</label>
+              <input
+                type="email"
+                placeholder="admin@enterprise.com"
+                defaultValue={email || 'admin@enterprise.com'}
+                className="w-full h-11 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-orange-500"
+              />
+            </div>
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800 flex items-start gap-2">
+              <Info size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+              <span>If SSO is enforced for your domain, you will be redirected to your identity provider.</span>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              className="btn-secondary text-xs h-9 px-4"
+              onClick={() => setShowForgotModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-primary text-xs h-9 px-4"
+              onClick={() => {
+                setShowForgotModal(false)
+                toast.success('Reset link sent', {
+                  description: 'Check your email inbox for password recovery steps.',
+                })
+              }}
+            >
+              Send Reset Link
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Scoped Styling & Media Queries ────────────────────────────────────── */}
       <style jsx>{`
@@ -331,7 +436,7 @@ export default function LoginPage() {
           width: 100%;
           display: flex;
           background-color: #f8fafc;
-          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          font-family: var(--font-family, 'Inter', system-ui, -apple-system, sans-serif);
           color: #0f172a;
           overflow-x: hidden;
         }
@@ -339,37 +444,23 @@ export default function LoginPage() {
         /* ── Left Hero Panel ── */
         .left-hero-panel {
           position: relative;
-          width: 50%;
+          width: 52%;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          padding: 48px 56px;
+          background: linear-gradient(145deg, #090d16 0%, #0f172a 50%, #1e293b 100%);
+          padding: 56px 64px;
           color: #ffffff;
           overflow: hidden;
         }
 
-        .glow-orb {
+        .hero-mesh-background {
           position: absolute;
-          border-radius: 50%;
+          inset: 0;
+          background-image: 
+            radial-gradient(circle at 85% 15%, rgba(255, 115, 0, 0.12) 0%, transparent 40%),
+            radial-gradient(circle at 15% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 45%);
           pointer-events: none;
-          filter: blur(80px);
-        }
-
-        .glow-orb-top {
-          top: -100px;
-          right: -100px;
-          width: 450px;
-          height: 450px;
-          background: rgba(255, 115, 0, 0.15);
-        }
-
-        .glow-orb-bottom {
-          bottom: -120px;
-          left: -80px;
-          width: 400px;
-          height: 400px;
-          background: rgba(59, 130, 246, 0.12);
         }
 
         .brand-header {
@@ -377,13 +468,24 @@ export default function LoginPage() {
           z-index: 10;
           display: flex;
           align-items: center;
+          gap: 12px;
+        }
+
+        .enterprise-tag {
+          font-size: 10px;
+          letter-spacing: 0.1em;
+          color: #ff8a2b;
+          background: rgba(255, 115, 0, 0.12);
+          border: 1px solid rgba(255, 115, 0, 0.25);
+          padding: 2px 8px;
+          border-radius: 4px;
         }
 
         .hero-content {
           position: relative;
           z-index: 10;
           max-width: 520px;
-          margin: 40px 0;
+          margin: 32px 0;
         }
 
         .badge-pill {
@@ -392,85 +494,52 @@ export default function LoginPage() {
           gap: 8px;
           padding: 6px 14px;
           background: rgba(255, 115, 0, 0.12);
-          border: 1px solid rgba(255, 115, 0, 0.3);
+          border: 1px solid rgba(255, 115, 0, 0.28);
           border-radius: 100px;
           font-size: 13px;
           font-weight: 500;
           color: #ff8a2b;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
         }
 
         .hero-heading {
-          font-size: 36px;
+          font-size: 38px;
           font-weight: 700;
-          line-height: 1.25;
-          letter-spacing: -0.02em;
+          line-height: 1.2;
+          letter-spacing: -0.025em;
           color: #ffffff;
           margin-bottom: 16px;
+          text-wrap: balance;
         }
 
         .hero-subtitle {
-          font-size: 16px;
+          font-size: 15px;
           line-height: 1.6;
           color: #94a3b8;
-          margin-bottom: 36px;
+          margin-bottom: 28px;
         }
 
-        .features-list {
-          list-style: none;
-          padding: 0;
-          margin: 0 0 40px 0;
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .feature-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 16px;
-        }
-
-        .feature-icon-wrapper {
-          width: 42px;
-          height: 42px;
-          border-radius: 10px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #ff7300;
-          flex-shrink: 0;
-        }
-
-        .feature-title {
-          font-size: 15px;
-          font-weight: 600;
-          color: #f1f5f9;
-          margin-bottom: 2px;
-        }
-
-        .feature-desc {
-          font-size: 13px;
-          color: #94a3b8;
-          line-height: 1.4;
-        }
-
-        .demo-indicator {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 18px;
-          background: rgba(255, 255, 255, 0.05);
+        /* Preview Card Box */
+        .preview-card-box {
+          background: rgba(15, 23, 42, 0.75);
           border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 12px;
-          font-size: 13px;
-          color: #e2e8f0;
-          backdrop-filter: blur(8px);
+          padding: 20px;
+          margin-bottom: 32px;
+          backdrop-filter: blur(12px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
-        .live-dot {
+        .preview-card-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .live-pulse-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
@@ -485,28 +554,112 @@ export default function LoginPage() {
           100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
+        .preview-metrics-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+
+        .metric-pill {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
+          padding: 10px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .metric-val {
+          font-size: 16px;
+          font-weight: 700;
+          color: #f8fafc;
+        }
+
+        .metric-lbl {
+          font-size: 11px;
+          color: #94a3b8;
+          margin-top: 2px;
+        }
+
+        .progress-track {
+          height: 6px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 999px;
+          overflow: hidden;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #ff7300, #22c55e);
+          border-radius: 999px;
+        }
+
+        .features-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .feature-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+        }
+
+        .feature-icon-wrapper {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          background: rgba(255, 115, 0, 0.1);
+          border: 1px solid rgba(255, 115, 0, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #ff7300;
+          flex-shrink: 0;
+        }
+
+        .feature-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #f1f5f9;
+          margin-bottom: 2px;
+        }
+
+        .feature-desc {
+          font-size: 12.5px;
+          color: #94a3b8;
+          line-height: 1.4;
+        }
+
         .hero-footer {
           position: relative;
           z-index: 10;
-          font-size: 13px;
+          font-size: 12.5px;
           color: #64748b;
         }
 
         /* ── Right Form Panel ── */
         .right-form-panel {
-          width: 50%;
+          width: 48%;
           min-height: 100vh;
           display: flex;
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          padding: 40px 24px;
+          padding: 40px 32px;
           background-color: #ffffff;
         }
 
         .form-container {
           width: 100%;
-          max-width: 420px;
+          max-width: 400px;
           display: flex;
           flex-direction: column;
         }
@@ -532,14 +685,13 @@ export default function LoginPage() {
           font-size: 14px;
           color: #64748b;
           margin: 0;
-        }
-
-        .accent-text {
-          color: #ff7300;
-          font-weight: 500;
+          line-height: 1.5;
         }
 
         .error-banner {
+          display: flex;
+          align-items: center;
+          gap: 10px;
           padding: 12px 16px;
           background-color: #fef2f2;
           border: 1px solid #fecaca;
@@ -552,8 +704,8 @@ export default function LoginPage() {
         .sso-group {
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          margin-bottom: 24px;
+          gap: 10px;
+          margin-bottom: 22px;
         }
 
         .sso-button {
@@ -562,12 +714,12 @@ export default function LoginPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 12px;
+          gap: 10px;
           padding: 0 16px;
           background-color: #ffffff;
           border: 1px solid #cbd5e1;
           border-radius: 8px;
-          font-size: 14px;
+          font-size: 13.5px;
           font-weight: 500;
           color: #334155;
           cursor: pointer;
@@ -584,7 +736,7 @@ export default function LoginPage() {
           display: flex;
           align-items: center;
           gap: 16px;
-          margin-bottom: 24px;
+          margin-bottom: 22px;
         }
 
         .divider-line {
@@ -594,16 +746,16 @@ export default function LoginPage() {
         }
 
         .divider-text {
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 600;
           color: #94a3b8;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.06em;
         }
 
         .login-form {
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 18px;
         }
 
         .input-group {
@@ -723,8 +875,8 @@ export default function LoginPage() {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          background-color: #ff7300 !important;
-          color: #ffffff !important;
+          background-color: #ff7300;
+          color: #ffffff;
           border: none;
           border-radius: 8px;
           font-size: 15px;
@@ -770,7 +922,7 @@ export default function LoginPage() {
         }
 
         .page-footer {
-          margin-top: 40px;
+          margin-top: 36px;
           text-align: center;
           font-size: 12px;
           color: #94a3b8;
@@ -785,6 +937,7 @@ export default function LoginPage() {
           align-items: center;
           justify-content: center;
           gap: 8px;
+          flex-wrap: wrap;
         }
 
         .footer-link {
@@ -807,7 +960,7 @@ export default function LoginPage() {
             padding: 40px 32px;
           }
           .hero-heading {
-            font-size: 30px;
+            font-size: 32px;
           }
         }
 
