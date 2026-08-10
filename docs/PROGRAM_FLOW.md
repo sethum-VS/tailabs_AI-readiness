@@ -158,7 +158,7 @@ sequenceDiagram
 
 ---
 
-## 2. Mathematical Scoring Engine Specifications
+### 2. Mathematical Scoring Engine Specifications
 
 All score calculations reside in [`src/lib/scoringEngine.ts`](file:///Users/sethummethsanda/Documents/Dev/tailabs_AI-readiness/src/lib/scoringEngine.ts).
 
@@ -186,7 +186,7 @@ $$\text{Technical Score (Out of 30)} = \sum_{i=1}^{6} T_i$$
 $$\text{Individual Score (\%)} = \left( \frac{\text{Technical Score}}{30} \right) \times 100$$
 
 ### 2.3 Likert & Pillar Percentage Conversions
-To normalize raw 1–4 Likert averages for team/org dashboard charts into standard $0–100\%$ scale:
+To normalize raw 1–4 Likert averages for team/org dashboard charts into standard 0–100% scale:
 
 $$\text{Pillar Score (\%)} = \left( \frac{\text{Raw Score}}{4} \right) \times 100$$
 
@@ -202,9 +202,9 @@ Scores map deterministically to semantic status categories across the dashboard:
 
 | Score Range | Status Code | Label | Color Hex | Background Color |
 | :--- | :--- | :--- | :--- | :--- |
-| **$< 40\%$** | `danger` | Low Readiness | `#F44336` | `rgba(244, 67, 54, 0.1)` |
-| **$40\% - 70\%$** | `warning` | Developing | `#FF7300` | `rgba(255, 115, 0, 0.1)` |
-| **$> 70\%$** | `success` | High Readiness | `#4CAF50` | `rgba(76, 175, 80, 0.1)` |
+| **< 40%** | `danger` | Low Readiness | `#F44336` | `rgba(244, 67, 54, 0.1)` |
+| **40% – 70%** | `warning` | Developing | `#FF7300` | `rgba(255, 115, 0, 0.1)` |
+| **> 70%** | `success` | High Readiness | `#4CAF50` | `rgba(76, 175, 80, 0.1)` |
 
 ---
 
@@ -214,7 +214,7 @@ The recommendation engine filters database rules stored in `recommendation_rules
 
 1. **Threshold Evaluation**: A recommendation rule is triggered if $\text{Pillar Average} < \text{threshold\_max}$.
 2. **Prioritization Sorting**: Recommendations are sorted in ascending order of `pillarScore` so that the worst-performing pillar is presented at the top of the **Action Matrix**.
-3. **Technical Personas**: If technical teams are present and average tech score is under $70\%$, a custom technical recommendation is injected:
-   - Score $\le 10/30 \rightarrow$ **Beginner Builder**
-   - Score $11-20/30 \rightarrow$ **Intermediate Builder (7-Day Challenge)**
-   - Score $> 20/30 \rightarrow$ **Applied AI-Ready**
+3. **Technical Personas**: If technical teams are present and average tech score is under 70%, a custom technical recommendation is injected:
+   - Score ≤ 10/30 → **Beginner Builder**
+   - Score 11–20/30 → **Intermediate Builder (7-Day Challenge)**
+   - Score > 20/30 → **Applied AI-Ready**
