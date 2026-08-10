@@ -16,6 +16,8 @@ import { TemplateEditor } from '@/components/admin/TemplateEditor'
 import { AdvancedMcpSettings } from '@/components/admin/AdvancedMcpSettings'
 import { OnboardingTour, RestartTourButton } from '@/components/admin/OnboardingTour'
 import type { Recommendation } from '@/lib/scoringEngine'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
+import { PullToRefreshIndicator } from '@/components/common/PullToRefreshIndicator'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -176,6 +178,10 @@ export default function AdminDashboard() {
     }
   }, [])
 
+  const { pullDistance, isPulling, isRefreshing } = usePullToRefresh({
+    onRefresh: fetchDashboard,
+  })
+
   useEffect(() => {
     fetchDashboard()
   }, [fetchDashboard])
@@ -275,6 +281,11 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-app)' }}>
+      {/* Pull down to refresh indicator for mobile touch screens */}
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing || (loading && isPulling)}
+      />
 
       {/* ─── Top Nav ────────────────────────────────────────────────────────── */}
       <nav
@@ -356,6 +367,7 @@ export default function AdminDashboard() {
             <button
               onClick={fetchDashboard}
               disabled={loading}
+              className="hide-mobile"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -371,7 +383,7 @@ export default function AdminDashboard() {
               }}
             >
               <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-              <span className="hide-mobile">Refresh</span>
+              <span>Refresh</span>
             </button>
           </div>
         </div>
