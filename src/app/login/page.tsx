@@ -27,6 +27,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import { LoginSkeleton } from '@/components/login/LoginSkeleton'
 
 // ─── Fingerprint helper ─────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ function getOrCreateGuestId(): string {
 
 export default function LoginPage() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [ssoLoading, setSsoLoading] = useState<'google' | 'microsoft' | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -68,12 +70,16 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false)
 
   // Default values for effortless entry if unchanged
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin')
+  const [password, setPassword] = useState('admin')
 
   useEffect(() => {
-    // Clean up state if necessary
+    setMounted(true)
   }, [])
+
+  if (!mounted) {
+    return <LoginSkeleton />
+  }
 
   async function handleLogin(provider?: 'google' | 'microsoft') {
     if (provider) {
@@ -141,41 +147,6 @@ export default function LoginPage() {
             Benchmark organizational AI maturity, identify capabilities gaps, and deliver targeted upskilling across 5 core readiness pillars.
           </p>
 
-          {/* Interactive Metric Preview Box */}
-          <div className="preview-card-box">
-            <div className="preview-card-header">
-              <div className="flex items-center gap-2">
-                <div className="live-pulse-dot" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">Live Benchmark Stream</span>
-              </div>
-              <span className="text-xs text-orange-400 font-medium font-mono">v3.4 Active</span>
-            </div>
-
-            <div className="preview-metrics-grid">
-              <div className="metric-pill">
-                <span className="metric-val">78.4%</span>
-                <span className="metric-lbl">Avg Readiness</span>
-              </div>
-              <div className="metric-pill">
-                <span className="metric-val">5 Pillars</span>
-                <span className="metric-lbl">Evaluated</span>
-              </div>
-              <div className="metric-pill">
-                <span className="metric-val">100%</span>
-                <span className="metric-lbl">Data Privacy</span>
-              </div>
-            </div>
-
-            <div className="preview-progress-strip">
-              <div className="flex justify-between text-xs text-slate-400 mb-1 font-medium">
-                <span>Tool Usage & Prompting</span>
-                <span className="text-emerald-400 font-semibold">High Proficiency</span>
-              </div>
-              <div className="progress-track">
-                <div className="progress-fill" style={{ width: '82%' }} />
-              </div>
-            </div>
-          </div>
 
           <ul className="features-list">
             {[
@@ -290,14 +261,14 @@ export default function LoginPage() {
               </label>
               <input
                 id="email-input"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@enterprise.com"
+                placeholder="admin"
                 onFocus={() => setEmailFocused(true)}
                 onBlur={() => setEmailFocused(false)}
                 className={`text-input ${emailFocused ? 'focused' : ''}`}
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
 
@@ -519,83 +490,6 @@ export default function LoginPage() {
           margin-bottom: 28px;
         }
 
-        /* Preview Card Box */
-        .preview-card-box {
-          background: rgba(15, 23, 42, 0.75);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 32px;
-          backdrop-filter: blur(12px);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        .preview-card-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 16px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .live-pulse-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #22c55e;
-          box-shadow: 0 0 10px #22c55e;
-          animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-          70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
-          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-        }
-
-        .preview-metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 12px;
-          margin-bottom: 16px;
-        }
-
-        .metric-pill {
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
-          padding: 10px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
-
-        .metric-val {
-          font-size: 16px;
-          font-weight: 700;
-          color: #f8fafc;
-        }
-
-        .metric-lbl {
-          font-size: 11px;
-          color: #94a3b8;
-          margin-top: 2px;
-        }
-
-        .progress-track {
-          height: 6px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 999px;
-          overflow: hidden;
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #ff7300, #22c55e);
-          border-radius: 999px;
-        }
 
         .features-list {
           list-style: none;
