@@ -38,13 +38,13 @@ The TAI Labs Enterprise AI Readiness Platform is a data-driven benchmarking and 
 
 ## 📚 Deep-Dive Documentation
 
-For detailed architectural specs, sequence flows, scoring formulas, and API documentation, explore the `docs/` directory:
+For detailed architectural specs, sequence flows, scoring formulas, and API documentation, explore the [`docs/`](./docs) directory:
 
-| Document | Description |
-| :--- | :--- |
-| 🏗️ [**System Architecture**](file:///Users/sethummethsanda/Documents/Dev/tailabs_AI-readiness/docs/ARCHITECTURE.md) | Component hierarchy, middleware auth guard, guest session model, and Supabase ERD. |
-| 🔄 [**Program Flow & Scoring Engine**](file:///Users/sethummethsanda/Documents/Dev/tailabs_AI-readiness/docs/PROGRAM_FLOW.md) | Step-by-step sequence diagrams, dual-track wizard logic, and mathematical scoring formulas. |
-| 🔌 [**API Reference**](file:///Users/sethummethsanda/Documents/Dev/tailabs_AI-readiness/docs/API_REFERENCE.md) | Exhaustive REST API specifications, header injection rules, request/response payloads, and error codes. |
+| Document | File Link | Description |
+| :--- | :--- | :--- |
+| 🏗️ **System Architecture** | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Component hierarchy, middleware auth guard, guest session model, and Supabase ERD. |
+| 🔄 **Program Flow & Scoring Engine** | [`docs/PROGRAM_FLOW.md`](./docs/PROGRAM_FLOW.md) | Step-by-step sequence diagrams, dual-track wizard logic, and mathematical scoring formulas. |
+| 🔌 **API Reference** | [`docs/API_REFERENCE.md`](./docs/API_REFERENCE.md) | Exhaustive REST API specifications, header injection rules, request/response payloads, and error codes. |
 
 ---
 
@@ -97,6 +97,10 @@ For detailed architectural specs, sequence flows, scoring formulas, and API docu
 ## 📁 Repository Directory Overview
 
 ```
+docs/                        # Deep-dive system & API documentation
+├── API_REFERENCE.md         # REST API specifications & schemas
+├── ARCHITECTURE.md          # System architecture & DB ERD
+└── PROGRAM_FLOW.md          # Sequence flows & scoring engine logic
 src/
 ├── app/                     # App Router pages and API routes
 │   ├── admin/               # Admin Dashboard & Distribution pages
