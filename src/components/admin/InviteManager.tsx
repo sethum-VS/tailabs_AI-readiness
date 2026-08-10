@@ -69,7 +69,7 @@ function StatusBadge({ status }: { status: InviteRow['status'] }) {
     },
     expired: {
       label: 'Expired',
-      cls: 'badge-pending',
+      cls: 'badge-expired',
       Icon: AlertCircle,
     },
   }[status] ?? {
@@ -317,12 +317,6 @@ export function InviteManager() {
       >
         {[
           {
-            icon: Link2,
-            label: 'Total Links',
-            value: invites.length,
-            color: 'var(--color-brand-accent)',
-          },
-          {
             icon: Clock,
             label: 'Pending',
             value: invites.filter((i) => i.status === 'pending').length,
@@ -333,6 +327,18 @@ export function InviteManager() {
             label: 'Active',
             value: invites.filter((i) => i.status === 'active').length,
             color: 'var(--color-success)',
+          },
+          {
+            icon: CheckCircle2,
+            label: 'Completed',
+            value: invites.filter((i) => i.status === 'completed').length,
+            color: '#2E7D32',
+          },
+          {
+            icon: AlertCircle,
+            label: 'Expired',
+            value: invites.filter((i) => i.status === 'expired').length,
+            color: '#D32F2F',
           },
           {
             icon: Users,

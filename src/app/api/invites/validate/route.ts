@@ -58,18 +58,63 @@ export async function GET(request: NextRequest) {
 
     const invite = data as unknown as InviteWithRelations
 
-    // Check expiry
+    // Check status in DB first
+    if (invite.status === 'completed') {
+      return NextResponse.json(
+        { valid: false, error: 'This assessment link has reached its maximum response limit and is now complete.', expired: true },
+        { status: 410 }
+      )
+    }
+
+    if (invite.status === 'expired') {
+      return NextResponse.json(
+        { valid: false, error: 'This assessment link has expired.', expired: true },
+        { status: 410 }
+      )
+    }
+
+    // Check expiry date
     if (new Date(invite.expires_at) < new Date()) {
       await supabase
         .from('assessment_invites')
         .update({ status: 'expired' } as never)
         .eq('id', invite.id)
 
-      return NextResponse.json({ valid: false, error: 'Token has expired' }, { status: 410 })
+      return NextResponse.json(
+        { valid: false, error: 'This assessment link has expired.', expired: true },
+        { status: 410 }
+      )
     }
 
-    if (invite.status === 'expired') {
-      return NextResponse.json({ valid: false, error: 'Token has expired' }, { status: 410 })
+    // Check response limit for team/invite
+    if (invite.team_id) {
+      const { count: responseCount } = await supabase
+        .from('assessment_responses')
+        .select('id', { count: 'exact', head: true })
+        .eq('team_id', invite.team_id)
+
+      const { data: teamData } = await supabase
+        .from('teams')
+        .select('target_seats')
+        .eq('id', invite.team_id)
+        .single() as unknown as { data: { target_seats: number } | null }
+
+      const targetSeats = teamData?.target_seats ?? 10
+      if (responseCount !== null && responseCount >= targetSeats) {
+        await supabase
+          .from('assessment_invites')
+          .update({ status: 'completed' } as never)
+          .eq('id', invite.id)
+
+        return NextResponse.json(
+          {
+            valid: false,
+            error: `This assessment link has reached its maximum response limit (${responseCount}/${targetSeats}) and is now complete.`,
+            expired: true,
+          },
+          { status: 410 }
+        )
+      }
     }
 
     return NextResponse.json({
@@ -86,3 +131,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ valid: false, error: 'Internal server error' }, { status: 500 })
   }
 }
+
