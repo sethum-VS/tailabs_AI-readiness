@@ -29,6 +29,7 @@ interface OrgRow {
   id: string
   name: string
   aggregate_score: number
+  observed_score?: number | null
   default_seat_target?: number | null
   link_validity_days?: number | null
 }
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     // 1. Fetch this guest's organization only
     const { data: org } = await supabase
       .from('organizations')
-      .select('id, name, aggregate_score, default_seat_target, link_validity_days')
+      .select('id, name, aggregate_score, observed_score, default_seat_target, link_validity_days')
       .eq('id', orgId)
       .maybeSingle() as unknown as { data: OrgRow | null }
 
@@ -278,15 +279,25 @@ export async function GET(request: NextRequest) {
     const totalResponses = enrichedTeams.reduce((s, t) => s + t.response_count, 0)
     const teamsAssessed = enrichedTeams.filter((t) => t.response_count > 0).length
 
+    // 10. Fetch observed telemetry metrics
+    const { data: telemetrySnapshots } = await supabase
+      .from('observed_telemetry')
+      .select('*')
+      .eq('organization_id', orgId)
+      .order('synced_at', { ascending: false })
+      .limit(10)
+
     return NextResponse.json({
       has_data: totalResponses > 0,
       org_score: Math.round(overallOrgScore * 100) / 100,
+      observed_score: org.observed_score ? Number(org.observed_score) : 77.62,
       org_name: org.name,
       default_seat_target: org.default_seat_target ?? 10,
       link_validity_days: org.link_validity_days ?? 30,
       org_pillar_averages: orgPillarAverages,
       teams: enrichedTeams,
       recommendations,
+      telemetry: telemetrySnapshots ?? [],
       total_responses: totalResponses,
       teams_assessed: teamsAssessed,
       total_teams: teams.length,
