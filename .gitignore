@@ -59,4 +59,5 @@ Thumbs.db
 # gstack & audit artifacts
 .gstack/
 /public/design-audit/
+cookies.txt
 

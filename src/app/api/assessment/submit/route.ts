@@ -152,6 +152,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert response — triggers recalculate_readiness_scores() automatically
+    // IMPORTANT: explicitly null out the opposing score set to avoid mis-classification:
+    // - Non-tech roles must have all tech_* fields = null (0 is not null and would
+    //   incorrectly mark the team as a technical team in the dashboard).
+    // - Tech roles must have all pillar fields = null for the same reason.
     const { data: response, error: insertError } = await supabase
       .from('assessment_responses')
       .insert({
@@ -160,18 +164,20 @@ export async function POST(request: NextRequest) {
         respondent_name,
         respondent_role,
         respondent_department,
-        tool_usage_score: tool_usage_score ?? null,
-        workflow_automation_score: workflow_automation_score ?? null,
-        data_literacy_score: data_literacy_score ?? null,
-        output_evaluation_score: output_evaluation_score ?? null,
-        leadership_buyin_score: leadership_buyin_score ?? null,
-        tech_coding_score: tech_coding_score ?? null,
-        tech_ml_concepts_score: tech_ml_concepts_score ?? null,
-        tech_infrastructure_score: tech_infrastructure_score ?? null,
-        tech_observability_score: tech_observability_score ?? null,
-        tech_applied_practice_score: tech_applied_practice_score ?? null,
-        tech_deployment_score: tech_deployment_score ?? null,
-        tech_total_score: tech_total_score ?? null,
+        // Non-tech pillar scores — null for tech roles
+        tool_usage_score: isTechRole ? null : (tool_usage_score ?? null),
+        workflow_automation_score: isTechRole ? null : (workflow_automation_score ?? null),
+        data_literacy_score: isTechRole ? null : (data_literacy_score ?? null),
+        output_evaluation_score: isTechRole ? null : (output_evaluation_score ?? null),
+        leadership_buyin_score: isTechRole ? null : (leadership_buyin_score ?? null),
+        // Technical scores — null for non-tech roles
+        tech_coding_score: isTechRole ? (tech_coding_score ?? null) : null,
+        tech_ml_concepts_score: isTechRole ? (tech_ml_concepts_score ?? null) : null,
+        tech_infrastructure_score: isTechRole ? (tech_infrastructure_score ?? null) : null,
+        tech_observability_score: isTechRole ? (tech_observability_score ?? null) : null,
+        tech_applied_practice_score: isTechRole ? (tech_applied_practice_score ?? null) : null,
+        tech_deployment_score: isTechRole ? (tech_deployment_score ?? null) : null,
+        tech_total_score: isTechRole ? (tech_total_score ?? null) : null,
         individual_score,
       } as never)
       .select('id, individual_score')

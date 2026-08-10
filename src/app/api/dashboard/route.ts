@@ -112,6 +112,7 @@ export async function GET(request: NextRequest) {
       tech_infrastructure: number
       tech_observability: number
       tech_applied_practice: number
+      tech_deployment: number
     }> = {}
 
     for (const r of (responses ?? [])) {
@@ -130,6 +131,7 @@ export async function GET(request: NextRequest) {
           tech_infrastructure: 0,
           tech_observability: 0,
           tech_applied_practice: 0,
+          tech_deployment: 0,
         }
       }
       const tm = teamPillarMap[r.team_id]
@@ -149,6 +151,7 @@ export async function GET(request: NextRequest) {
         tm.tech_infrastructure += r.tech_infrastructure_score ?? 0
         tm.tech_observability += r.tech_observability_score ?? 0
         tm.tech_applied_practice += r.tech_applied_practice_score ?? 0
+        tm.tech_deployment += r.tech_deployment_score ?? 0
       }
     }
 
@@ -158,6 +161,10 @@ export async function GET(request: NextRequest) {
       const n = tm?.count ?? 0
       const nNonTech = tm?.nonTechCount ?? 0
       const nTech = tm?.techCount ?? 0
+      // A team is technical if its name is Engineering/Data, OR if it has tech responses
+      // (nTech > 0 means at least one response has a non-null tech_coding_score).
+      // Note: After the submit-route fix, non-tech roles now store null for tech fields
+      // so nTech correctly counts only real tech respondents.
       const isTech = team.name === 'Engineering' || team.name === 'Data' || nTech > 0
 
       let pillarAverages: Record<string, number>
@@ -237,16 +244,30 @@ export async function GET(request: NextRequest) {
       ? getRecommendations(orgPillarAverages, rules ?? [])
       : []
 
-    // 9. Add technical recommendation if applicable
+    // 9. Add technical recommendation if applicable.
+    // Uses the 6-pillar raw sum (0–30) accumulated in teamPillarMap for accuracy.
     const techTeams = teamsWithData.filter((t) => t.is_tech)
     if (techTeams.length > 0) {
-      const avgTechScorePct = Math.round(techTeams.reduce((s, t) => s + (t.aggregate_score || 0), 0) / techTeams.length)
-      if (avgTechScorePct < 70) { // Threshold for tech recommendation
+      let totalTechScore30 = 0
+      let totalTechRespondents = 0
+      for (const team of techTeams) {
+        const tm = teamPillarMap[team.id]
+        if (tm && tm.techCount > 0) {
+          // Full 6-pillar sum (each pillar scored 0–5 per question, summed across respondents)
+          const teamRawTotal = tm.tech_coding + tm.tech_ml_concepts + tm.tech_infrastructure +
+            tm.tech_observability + tm.tech_applied_practice + tm.tech_deployment
+          totalTechScore30 += teamRawTotal
+          totalTechRespondents += tm.techCount
+        }
+      }
+      // avgTechScore30: average raw score per respondent across all tech teams (scale 0-30)
+      const avgTechScore30 = totalTechRespondents > 0 ? totalTechScore30 / totalTechRespondents : 0
+      const avgTechScorePct = Math.round((avgTechScore30 / 30) * 100)
+
+      if (avgTechScorePct < 70) {
         const { getTechnicalRecommendation } = await import('@/lib/scoringEngine')
-        // getTechnicalRecommendation expects a score out of 30
-        const techScore30 = (avgTechScorePct / 100) * 30
-        const techRec = getTechnicalRecommendation(techScore30)
-        // Ensure pillarScore is a percentage for the UI
+        // getTechnicalRecommendation(score): score <= 10 → Beginner, 11-20 → Intermediate, > 20 → Applied
+        const techRec = getTechnicalRecommendation(avgTechScore30)
         techRec.pillarScore = avgTechScorePct
         recommendations.push(techRec)
       }

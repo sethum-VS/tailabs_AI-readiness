@@ -426,20 +426,34 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
     submittedRef.current = true
     setSubmitting(true)
     try {
-      const payload = {
+      // Build payload with only the relevant score fields for the persona type.
+      // Non-tech roles: send only the 5 pillar scores (never tech_* fields).
+      // Tech roles: send only the 6 tech scores (never pillar fields).
+      // This prevents cross-contamination of score types in the database.
+      const basePayload = {
         token,
         invite_id: tokenContext.invite_id,
         team_id: tokenContext.team_id,
         respondent_name: name.trim(),
         respondent_role: role.trim(),
         respondent_department: department,
-        tool_usage_score: scores.tool_usage_score,
-        workflow_automation_score: scores.workflow_automation_score,
-        data_literacy_score: scores.data_literacy_score,
-        output_evaluation_score: scores.output_evaluation_score,
-        leadership_buyin_score: scores.leadership_buyin_score,
-        ...(finalTechScores || techScores)
       }
+
+      const payload = isTechRole
+        ? {
+            ...basePayload,
+            // Tech persona: only 6 technical vector scores
+            ...(finalTechScores || techScores),
+          }
+        : {
+            ...basePayload,
+            // Non-tech persona: only 5 Likert pillar scores
+            tool_usage_score: scores.tool_usage_score,
+            workflow_automation_score: scores.workflow_automation_score,
+            data_literacy_score: scores.data_literacy_score,
+            output_evaluation_score: scores.output_evaluation_score,
+            leadership_buyin_score: scores.leadership_buyin_score,
+          }
 
       const res = await fetch('/api/assessment/submit', {
         method: 'POST',
