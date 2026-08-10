@@ -19,14 +19,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Protect /admin and /api/dashboard and /api/invites
+  // Protect /admin, /api/admin, /api/dashboard, /api/invites, and /api/settings
   const guestCookie = request.cookies.get('tai_guest_id')?.value
 
   if (!guestCookie && (
     pathname.startsWith('/admin') ||
+    pathname.startsWith('/api/admin') ||
     pathname.startsWith('/api/dashboard') ||
-    pathname.startsWith('/api/invites')
+    pathname.startsWith('/api/invites') ||
+    pathname.startsWith('/api/settings')
   )) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const loginUrl = new URL('/login', request.url)
     return NextResponse.redirect(loginUrl)
   }

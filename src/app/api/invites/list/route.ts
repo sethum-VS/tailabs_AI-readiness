@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { getAuthOrgId } from '@/lib/apiUtils'
 
 interface InviteWithRelations {
   id: string
@@ -30,15 +31,32 @@ interface ResponseRow {
 
 export async function GET(request: NextRequest) {
   try {
-    // Org ID is injected by middleware from the tai_guest_id cookie
-    const orgId = request.headers.get('x-tai-org-id')
-
-    if (!orgId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = getAuthOrgId(request)
+    if ('errorResponse' in auth) {
+      return auth.errorResponse
     }
+    const { orgId } = auth
 
     const supabase = createAdminClient()
 
+    // 1. Fetch team IDs for this org to filter in SQL
+    const { data: orgTeams, error: teamsError } = await supabase
+      .from('teams')
+      .select('id')
+      .eq('organization_id', orgId) as { data: Array<{ id: string }> | null; error: unknown }
+
+    if (teamsError) {
+      console.error('Fetch teams for invites list error:', teamsError)
+      return NextResponse.json({ error: 'Failed to fetch teams' }, { status: 500 })
+    }
+
+    if (!orgTeams || orgTeams.length === 0) {
+      return NextResponse.json({ invites: [] })
+    }
+
+    const teamIds = orgTeams.map((t) => t.id)
+
+    // 2. Fetch invites belonging strictly to this org's teams
     let { data, error } = await supabase
       .from('assessment_invites')
       .select(`
@@ -63,6 +81,7 @@ export async function GET(request: NextRequest) {
           )
         )
       `)
+      .in('team_id', teamIds)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -91,6 +110,7 @@ export async function GET(request: NextRequest) {
             )
           )
         `)
+        .in('team_id', teamIds)
         .order('created_at', { ascending: false })
 
       data = fallbackResult.data
@@ -104,9 +124,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch invites' }, { status: 500 })
     }
 
-    // Filter to only invites belonging to this guest's org
-    const allInvites = (data ?? []) as unknown as InviteWithRelations[]
-    const invites = allInvites.filter((i) => i.teams?.organization_id === orgId)
+    const invites = (data ?? []) as unknown as InviteWithRelations[]
     const inviteIds = invites.map((i) => i.id)
 
     let responseCounts: Record<string, number> = {}
@@ -129,6 +147,7 @@ export async function GET(request: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const statusUpdatePromises: Array<Promise<unknown>> = []
 
     const enriched = invites.map((invite) => {
       const team = invite.teams
@@ -149,11 +168,14 @@ export async function GET(request: NextRequest) {
       }
 
       if (invite.status !== computedStatus) {
-        supabase
-          .from('assessment_invites')
-          .update({ status: computedStatus } as never)
-          .eq('id', invite.id)
-          .then()
+        statusUpdatePromises.push(
+          Promise.resolve(
+            supabase
+              .from('assessment_invites')
+              .update({ status: computedStatus } as never)
+              .eq('id', invite.id)
+          ).catch((e) => console.error(`Failed to update status for invite ${invite.id}`, e))
+        )
       }
 
       const scenarioQueryParam = invite.selected_scenario_id && invite.selected_scenario_id !== 'all'
@@ -179,6 +201,10 @@ export async function GET(request: NextRequest) {
         selected_scenario_id: invite.selected_scenario_id || 'all',
       }
     })
+
+    if (statusUpdatePromises.length > 0) {
+      await Promise.allSettled(statusUpdatePromises)
+    }
 
     return NextResponse.json({ invites: enriched })
   } catch (err) {

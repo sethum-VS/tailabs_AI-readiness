@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { getRecommendations, type RecommendationRule, type TeamPillarAverages } from '@/lib/scoringEngine'
+import { getRecommendations, getTechnicalRecommendation, type RecommendationRule, type TeamPillarAverages } from '@/lib/scoringEngine'
+import { getAuthOrgId } from '@/lib/apiUtils'
 
 interface TeamResponseRow {
   tool_usage_score: number | null
@@ -34,12 +35,11 @@ interface OrgRow {
 
 export async function GET(request: NextRequest) {
   try {
-    // Org ID is injected by middleware from the tai_guest_id cookie
-    const orgId = request.headers.get('x-tai-org-id')
-
-    if (!orgId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = getAuthOrgId(request)
+    if ('errorResponse' in auth) {
+      return auth.errorResponse
     }
+    const { orgId } = auth
 
     const supabase = createAdminClient()
 
@@ -265,7 +265,6 @@ export async function GET(request: NextRequest) {
       const avgTechScorePct = Math.round((avgTechScore30 / 30) * 100)
 
       if (avgTechScorePct < 70) {
-        const { getTechnicalRecommendation } = await import('@/lib/scoringEngine')
         // getTechnicalRecommendation(score): score <= 10 → Beginner, 11-20 → Intermediate, > 20 → Applied
         const techRec = getTechnicalRecommendation(avgTechScore30)
         techRec.pillarScore = avgTechScorePct

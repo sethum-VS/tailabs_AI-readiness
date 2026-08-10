@@ -1,8 +1,14 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { getAuthOrgId } from '@/lib/apiUtils'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const auth = getAuthOrgId(request)
+    if ('errorResponse' in auth) {
+      return auth.errorResponse
+    }
+
     const body = await request.json()
     const { recommendation_id, recommendation_title, pillar, team_ids, message } = body
 
@@ -13,7 +19,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Fetch team details for selected IDs
     const { data: teams, error: teamsError } = (await supabase

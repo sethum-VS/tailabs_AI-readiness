@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { getDefaultTemplate, type AssessmentSchemaPayload } from '@/lib/defaultTemplates'
+import { getAuthOrgId } from '@/lib/apiUtils'
 
 export async function GET(request: NextRequest) {
   try {
-    const orgId = request.headers.get('x-tai-org-id')
-    if (!orgId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = getAuthOrgId(request)
+    if ('errorResponse' in auth) {
+      return auth.errorResponse
     }
+    const { orgId } = auth
 
     const { searchParams } = new URL(request.url)
     const departmentType = searchParams.get('department_type') || 'Engineering'
@@ -50,10 +52,11 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const orgId = request.headers.get('x-tai-org-id')
-    if (!orgId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = getAuthOrgId(request)
+    if ('errorResponse' in auth) {
+      return auth.errorResponse
     }
+    const { orgId } = auth
 
     const body = await request.json()
     const { department_type, schema_payload } = body as {
@@ -104,10 +107,11 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const orgId = request.headers.get('x-tai-org-id')
-    if (!orgId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = getAuthOrgId(request)
+    if ('errorResponse' in auth) {
+      return auth.errorResponse
     }
+    const { orgId } = auth
 
     const { searchParams } = new URL(request.url)
     const departmentType = searchParams.get('department_type') || 'Engineering'
