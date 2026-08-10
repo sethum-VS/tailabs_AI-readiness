@@ -19,6 +19,7 @@ export type Database = {
           guest_id: string | null
           default_seat_target: number
           link_validity_days: number
+          observed_score: number
         }
         Insert: {
           id?: string
@@ -29,6 +30,7 @@ export type Database = {
           guest_id?: string | null
           default_seat_target?: number
           link_validity_days?: number
+          observed_score?: number
         }
         Update: {
           id?: string
@@ -39,6 +41,7 @@ export type Database = {
           guest_id?: string | null
           default_seat_target?: number
           link_validity_days?: number
+          observed_score?: number
         }
       }
       guest_sessions: {
@@ -243,6 +246,67 @@ export type Database = {
           schema_payload?: Json
           created_at?: string
           updated_at?: string
+        }
+      }
+      mcp_integrations: {
+        Row: {
+          id: string
+          organization_id: string
+          provider: string
+          status: 'connected' | 'disconnected' | 'syncing' | 'error'
+          config: Json
+          last_synced_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          provider: string
+          status?: 'connected' | 'disconnected' | 'syncing' | 'error'
+          config?: Json
+          last_synced_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          provider?: string
+          status?: 'connected' | 'disconnected' | 'syncing' | 'error'
+          config?: Json
+          last_synced_at?: string | null
+          created_at?: string
+        }
+      }
+      observed_telemetry: {
+        Row: {
+          id: string
+          organization_id: string
+          team_id: string | null
+          provider: string
+          metric_name: string
+          observed_value: number
+          normalized_score: number
+          synced_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          team_id?: string | null
+          provider: string
+          metric_name: string
+          observed_value: number
+          normalized_score: number
+          synced_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          team_id?: string | null
+          provider?: string
+          metric_name?: string
+          observed_value?: number
+          normalized_score?: number
+          synced_at?: string
         }
       }
     }

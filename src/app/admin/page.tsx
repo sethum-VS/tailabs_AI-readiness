@@ -13,6 +13,7 @@ import { ActionMatrix } from '@/components/admin/ActionMatrix'
 import { DashboardSkeleton } from '@/components/admin/DashboardSkeleton'
 import { DepartmentBreakdownCard } from '@/components/admin/DepartmentBreakdownCard'
 import { TemplateEditor } from '@/components/admin/TemplateEditor'
+import { AdvancedMcpSettings } from '@/components/admin/AdvancedMcpSettings'
 import { OnboardingTour, RestartTourButton } from '@/components/admin/OnboardingTour'
 import type { Recommendation } from '@/lib/scoringEngine'
 
@@ -31,6 +32,7 @@ interface TeamData {
 interface DashboardData {
   has_data: boolean
   org_score: number
+  observed_score?: number
   org_name: string
   default_seat_target?: number
   link_validity_days?: number
@@ -468,6 +470,7 @@ export default function AdminDashboard() {
                 >
                   <MacroScorecard
                     score={data?.org_score ?? 0}
+                    observedScore={data?.observed_score}
                     orgName={data?.org_name ?? 'Your Organization'}
                     totalResponses={data?.total_responses ?? 0}
                     teamsAssessed={data?.teams_assessed ?? 0}
@@ -664,46 +667,8 @@ export default function AdminDashboard() {
             {/* Assessment Templates & Scoring Customization */}
             <TemplateEditor />
 
-            {/* Security & Data Privacy Card */}
-            <div className="oxygen-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <ShieldCheck size={20} color="var(--color-success)" />
-                <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0, color: 'var(--color-text-primary)' }}>
-                  Security & Data Privacy
-                </h2>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                      Zero Raw Data Exposure
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                      Aggregate scoring only; individual raw responses are strictly encrypted
-                    </div>
-                  </div>
-                  <span className="badge-active" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    Enforced
-                  </span>
-                </div>
-
-                <div style={{ height: '1px', background: 'var(--color-border)' }} />
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                      Role-Based Access Control
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                      Restricts admin dashboard viewing privileges to verified organization admins
-                    </div>
-                  </div>
-                  <span className="badge-active" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    Active
-                  </span>
-                </div>
-              </div>
-            </div>
+            {/* Advanced Section: MCP Enterprise AI Telemetry Integrations */}
+            <AdvancedMcpSettings onSyncSuccess={fetchDashboard} />
 
             {/* Log Out Card */}
             <div className="oxygen-card" style={{ borderColor: 'rgba(244,67,54,0.25)' }}>

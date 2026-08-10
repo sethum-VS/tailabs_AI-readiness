@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 interface MacroScorecardProps {
   score: number
+  observedScore?: number
   orgName: string
   totalResponses: number
   teamsAssessed: number
@@ -15,6 +16,7 @@ interface MacroScorecardProps {
 
 export function MacroScorecard({
   score,
+  observedScore,
   orgName,
   totalResponses,
   teamsAssessed,
@@ -78,13 +80,33 @@ export function MacroScorecard({
   return (
     <div className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', height: '100%', gap: '20px', padding: '24px 16px' }}>
       {/* Title */}
-      <div style={{ textAlign: 'center' }}>
-        <h3 style={{ fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-secondary)', margin: '0 0 4px' }}>
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+        <h3 style={{ fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-secondary)', margin: 0 }}>
           {orgName}
         </h3>
         <p style={{ fontSize: '11px', color: 'var(--color-text-disabled)', margin: 0 }}>
           Org AI Readiness Score
         </p>
+        {typeof observedScore === 'number' && (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '11px',
+              fontWeight: '600',
+              color: 'var(--color-brand-accent)',
+              background: 'rgba(255, 115, 0, 0.08)',
+              border: '1px solid rgba(255, 115, 0, 0.2)',
+              padding: '2px 8px',
+              borderRadius: '999px',
+              marginTop: '2px',
+            }}
+          >
+            <span>Observed Telemetry:</span>
+            <span style={{ fontWeight: '700' }}>{observedScore}%</span>
+          </div>
+        )}
       </div>
 
       {/* SVG Radial Gauge */}
