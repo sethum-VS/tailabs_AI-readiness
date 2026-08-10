@@ -26,17 +26,6 @@ jobs:
       - name: Run Build Verification
         run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://fbcemqriapvadsozhbgk.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2OTUwMTcsImV4cCI6MjA5OTI3MTAxN30.LPSSu3kt9FNsn-CkltkEZp3Vgh3YuOnlWMxom7yC0q4' }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzY5NTAxNywiZXhwIjoy0jk5MjcxMDE3fQ.ld1QzKxGsgtBmqJ2wtLgIS5jyHUpJTPxNZjHpHF63TY' }}
-
-      - name: Deploy to Vercel (if VERCEL_TOKEN configured)
-        if: ${{ secrets.VERCEL_TOKEN != '' }}
-        run: |
-          npm install --global vercel@latest
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || 'team_4PPrjquo3tBxcwKQeaMJ44uD' }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID || 'prj_hgUxws94AiUeugkbvQv4dP5QVTZ3' }}
+          NEXT_PUBLIC_SUPABASE_URL: "https://fbcemqriapvadsozhbgk.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2OTUwMTcsImV4cCI6MjA5OTI3MTAxN30.LPSSu3kt9FNsn-CkltkEZp3Vgh3YuOnlWMxom7yC0q4"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzY5NTAxNywiZXhwIjoyMDk5MjcxMDE3fQ.ld1QzKxGsgtBmqJ2wtLgIS5jyHUpJTPxNZjHpHF63TY"
