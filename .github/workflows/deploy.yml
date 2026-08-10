@@ -33,14 +33,21 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2OTUwMTcsImV4cCI6MjA5OTI3MTAxN30.LPSSu3kt9FNsn-CkltkEZp3Vgh3YuOnlWMxom7yC0q4"
           SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzY5NTAxNywiZXhwIjoyMDk5MjcxMDE3fQ.ld1QzKxGsgtBmqJ2wtLgIS5jyHUpJTPxNZjHpHF63TY"
 
-      - name: Deploy to Vercel Production
+      - name: Install Vercel CLI
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        continue-on-error: true
-        run: |
-          npm install --global vercel@latest
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} || echo "Vercel credentials invalid or deployment step skipped"
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} || echo "Vercel build skipped"
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} || echo "Vercel deploy skipped"
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project Artifacts for Vercel
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -48,4 +55,12 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: "https://fbcemqriapvadsozhbgk.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2OTUwMTcsImV4cCI6MjA5OTI3MTAxN30.LPSSu3kt9FNsn-CkltkEZp3Vgh3YuOnlWMxom7yC0q4"
           SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY2VtcXJpYXB2YWRzb3poYmdrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzY5NTAxNywiZXhwIjoyMDk5MjcxMDE3fQ.ld1QzKxGsgtBmqJ2wtLgIS5jyHUpJTPxNZjHpHF63TY"
+
+      - name: Deploy Project Artifacts to Vercel Production
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
