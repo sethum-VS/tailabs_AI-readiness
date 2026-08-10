@@ -10,18 +10,18 @@ The application is built on **Next.js 15 App Router** using TypeScript, Tailwind
 
 ```mermaid
 graph TB
-    subgraph Client Layer
+    subgraph ClientLayer["Client Layer"]
         Browser["User Browser (Admin / Respondent)"]
         FP["Client Fingerprinter (localStorage)"]
     end
 
-    subgraph Edge / Middleware Layer
+    subgraph EdgeLayer["Edge / Middleware Layer"]
         MW["Next.js Middleware (src/middleware.ts)"]
         Cookie["Session Cookie (tai_guest_id)"]
     end
 
-    subgraph Application Layer (Next.js 15 App Router)
-        subgraph Server Routes & API
+    subgraph AppLayer["Application Layer (Next.js 15 App Router)"]
+        subgraph ServerRoutes["Server Routes & API"]
             GuestLogin["POST /api/auth/guest-login"]
             GenerateInvite["POST /api/invites/generate"]
             ValidateInvite["GET /api/invites/validate"]
@@ -29,7 +29,7 @@ graph TB
             GetDashboard["GET /api/dashboard"]
         end
 
-        subgraph Client Pages & Components
+        subgraph ClientPages["Client Pages & Components"]
             LoginPage["/login (Admin Sign In)"]
             AdminDash["/admin (Dashboard & Analytics)"]
             DistPage["/admin/distribution (Invite Manager)"]
@@ -39,10 +39,10 @@ graph TB
         ScoreEngine["Scoring Engine (src/lib/scoringEngine.ts)"]
     end
 
-    subgraph Data & Storage Layer (Supabase / PostgreSQL)
+    subgraph DataLayer["Data & Storage Layer (Supabase / PostgreSQL)"]
         SupaAdmin["Supabase Service Role Admin Client"]
         
-        subgraph PostgreSQL Tables
+        subgraph PostgreSqlTables["PostgreSQL Tables"]
             Orgs["organizations"]
             Sessions["guest_sessions"]
             Teams["teams"]
