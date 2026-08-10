@@ -220,15 +220,14 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '48px 32px',
-            textAlign: 'center',
+            padding: '40px 32px',
             gap: '16px',
           }}
         >
           <div
             style={{
-              width: '64px',
-              height: '64px',
+              width: '56px',
+              height: '56px',
               borderRadius: '50%',
               background: 'rgba(76, 175, 80, 0.1)',
               border: '1px solid rgba(76, 175, 80, 0.3)',
@@ -237,16 +236,30 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
               justifyContent: 'center',
             }}
           >
-            <CheckCircle2 size={32} color="var(--color-success)" />
+            <CheckCircle2 size={28} color="var(--color-success)" />
           </div>
-          <div>
-            <h4 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={20} color="var(--color-warning)" />
-              <span>All Pillars Performing Well!</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '440px' }}>
+            <h4
+              style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: 'var(--color-text-primary)',
+                margin: '0 0 8px',
+                textAlign: 'center',
+              }}
+            >
+              All Pillars Performing Well!
             </h4>
-            <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0, maxWidth: '400px' }}>
-              All team pillar scores are above 50%. No targeted interventions required at this time.
-              Continue monitoring scores as more team members complete assessments.
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--color-text-secondary)',
+                margin: 0,
+                textAlign: 'left',
+                lineHeight: '1.6',
+              }}
+            >
+              {"All team pillar scores are above 50%. No targeted interventions required at this time. Continue monitoring scores as more team members complete assessments."}
             </p>
           </div>
         </div>
