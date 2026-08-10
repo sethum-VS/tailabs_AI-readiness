@@ -8,11 +8,18 @@ interface SubmitPayload {
   team_id: string
   respondent_name: string
   respondent_role: string
-  tool_usage_score: number
-  workflow_automation_score: number
-  data_literacy_score: number
-  output_evaluation_score: number
-  leadership_buyin_score: number
+  respondent_department: string
+  tool_usage_score?: number
+  workflow_automation_score?: number
+  data_literacy_score?: number
+  output_evaluation_score?: number
+  leadership_buyin_score?: number
+  tech_coding_score?: number
+  tech_ml_concepts_score?: number
+  tech_infrastructure_score?: number
+  tech_observability_score?: number
+  tech_applied_practice_score?: number
+  tech_deployment_score?: number
 }
 
 export async function POST(request: NextRequest) {
@@ -25,33 +32,44 @@ export async function POST(request: NextRequest) {
       team_id,
       respondent_name,
       respondent_role,
+      respondent_department,
       tool_usage_score,
       workflow_automation_score,
       data_literacy_score,
       output_evaluation_score,
       leadership_buyin_score,
+      tech_coding_score,
+      tech_ml_concepts_score,
+      tech_infrastructure_score,
+      tech_observability_score,
+      tech_applied_practice_score,
+      tech_deployment_score,
     } = body
 
     // Validate required fields
-    if (!token || !team_id || !respondent_name || !respondent_role) {
+    if (!token || !team_id || !respondent_name || !respondent_role || !respondent_department) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Validate Likert scores 1–4
-    const scores = [
-      tool_usage_score,
-      workflow_automation_score,
-      data_literacy_score,
-      output_evaluation_score,
-      leadership_buyin_score,
-    ]
+    const isTechRole = respondent_department === 'Engineering' || respondent_department === 'Data'
 
-    for (const score of scores) {
-      if (!Number.isInteger(score) || score < 1 || score > 4) {
-        return NextResponse.json(
-          { error: 'All pillar scores must be integers between 1 and 4' },
-          { status: 400 }
-        )
+    if (!isTechRole) {
+      // Validate Likert scores 1–4
+      const scores = [
+        tool_usage_score,
+        workflow_automation_score,
+        data_literacy_score,
+        output_evaluation_score,
+        leadership_buyin_score,
+      ]
+
+      for (const score of scores) {
+        if (!Number.isInteger(score) || score! < 1 || score! > 4) {
+          return NextResponse.json(
+            { error: 'All pillar scores must be integers between 1 and 4' },
+            { status: 400 }
+          )
+        }
       }
     }
 
@@ -104,14 +122,28 @@ export async function POST(request: NextRequest) {
         )
       }
     }
-    // Calculate individual score: (sum / 20) * 100
-    const individual_score = calculateIndividualScore({
-      tool_usage_score,
-      workflow_automation_score,
-      data_literacy_score,
-      output_evaluation_score,
-      leadership_buyin_score,
-    })
+    // Calculate individual score: (sum / 20) * 100 for non-tech, or out of 30 for tech
+    let individual_score = 0
+    let tech_total_score = null
+
+    if (isTechRole) {
+      tech_total_score = (tech_coding_score || 0) +
+        (tech_ml_concepts_score || 0) +
+        (tech_infrastructure_score || 0) +
+        (tech_observability_score || 0) +
+        (tech_applied_practice_score || 0) +
+        (tech_deployment_score || 0)
+      
+      individual_score = Math.round((tech_total_score / 30) * 100 * 100) / 100
+    } else {
+      individual_score = calculateIndividualScore({
+        tool_usage_score: tool_usage_score!,
+        workflow_automation_score: workflow_automation_score!,
+        data_literacy_score: data_literacy_score!,
+        output_evaluation_score: output_evaluation_score!,
+        leadership_buyin_score: leadership_buyin_score!,
+      })
+    }
 
     // Insert response — triggers recalculate_readiness_scores() automatically
     const { data: response, error: insertError } = await supabase
@@ -121,11 +153,19 @@ export async function POST(request: NextRequest) {
         invite_id: invite_id || null,
         respondent_name,
         respondent_role,
-        tool_usage_score,
-        workflow_automation_score,
-        data_literacy_score,
-        output_evaluation_score,
-        leadership_buyin_score,
+        respondent_department,
+        tool_usage_score: tool_usage_score ?? null,
+        workflow_automation_score: workflow_automation_score ?? null,
+        data_literacy_score: data_literacy_score ?? null,
+        output_evaluation_score: output_evaluation_score ?? null,
+        leadership_buyin_score: leadership_buyin_score ?? null,
+        tech_coding_score: tech_coding_score ?? null,
+        tech_ml_concepts_score: tech_ml_concepts_score ?? null,
+        tech_infrastructure_score: tech_infrastructure_score ?? null,
+        tech_observability_score: tech_observability_score ?? null,
+        tech_applied_practice_score: tech_applied_practice_score ?? null,
+        tech_deployment_score: tech_deployment_score ?? null,
+        tech_total_score: tech_total_score ?? null,
         individual_score,
       } as never)
       .select('id, individual_score')

@@ -36,13 +36,38 @@ export type ScoreStatus = 'danger' | 'warning' | 'success'
  */
 export function calculateIndividualScore(pillars: PillarScores): number {
   const sum =
-    pillars.tool_usage_score +
-    pillars.workflow_automation_score +
-    pillars.data_literacy_score +
-    pillars.output_evaluation_score +
-    pillars.leadership_buyin_score
+    (pillars.tool_usage_score || 0) +
+    (pillars.workflow_automation_score || 0) +
+    (pillars.data_literacy_score || 0) +
+    (pillars.output_evaluation_score || 0) +
+    (pillars.leadership_buyin_score || 0)
 
   return Math.round((sum / 20) * 100 * 100) / 100
+}
+
+export interface TechnicalScores {
+  tech_coding_score: number
+  tech_ml_concepts_score: number
+  tech_infrastructure_score: number
+  tech_observability_score: number
+  tech_applied_practice_score: number
+  tech_deployment_score: number
+}
+
+/**
+ * Calculate technical score out of 30.
+ * Sum of the 6 technical competency scores (each 0-6).
+ */
+export function calculateTechnicalScore(scores: TechnicalScores): number {
+  const sum =
+    (scores.tech_coding_score || 0) +
+    (scores.tech_ml_concepts_score || 0) +
+    (scores.tech_infrastructure_score || 0) +
+    (scores.tech_observability_score || 0) +
+    (scores.tech_applied_practice_score || 0) +
+    (scores.tech_deployment_score || 0)
+  
+  return sum
 }
 
 /**
@@ -131,9 +156,48 @@ export function getRecommendations(
     .sort((a, b) => a.pillarScore - b.pillarScore) // worst pillar first
 }
 
+/**
+ * Get the recommendation for technical personas based on tech_total_score (0-30).
+ */
+export function getTechnicalRecommendation(score: number): Recommendation {
+  if (score <= 10) {
+    return {
+      id: 'tech_beginner',
+      pillar: 'tech',
+      title: 'Beginner Builder',
+      description: 'Focus on Python fundamentals, APIs, and recreating simple RAG examples using public tutorials.',
+      action_label: 'Start Python & API Tutorials',
+      action_url: null,
+      pillarScore: score
+    }
+  }
+  
+  if (score <= 20) {
+    return {
+      id: 'tech_intermediate',
+      pillar: 'tech',
+      title: 'Intermediate Builder',
+      description: 'Execute the 7-Day Challenge: Build a local command-line chatbot, add a local FAISS vector store, deploy with FastAPI, and containerize with Docker.',
+      action_label: 'Start the 7-Day Challenge',
+      action_url: null,
+      pillarScore: score
+    }
+  }
+
+  return {
+    id: 'tech_applied',
+    pillar: 'tech',
+    title: 'Applied AI-Ready',
+    description: 'Focus on observability, latency optimization, and cost tracking. Ready to deploy real AI systems, not just demos.',
+    action_label: 'Prepare for Production',
+    action_url: null,
+    pillarScore: score
+  }
+}
+
 // ─── Pillar Label Mapping ─────────────────────────────────────────────────────
 
-import { Wrench, Workflow, BarChart3, SearchCheck, Target, type LucideIcon } from 'lucide-react'
+import { Wrench, Workflow, BarChart3, SearchCheck, Target, Code, type LucideIcon } from 'lucide-react'
 
 export const PILLAR_LABELS: Record<string, string> = {
   tool_usage: 'Tool Usage',
@@ -141,6 +205,7 @@ export const PILLAR_LABELS: Record<string, string> = {
   data_literacy: 'Data Literacy',
   output_evaluation: 'Output Evaluation',
   leadership_buyin: 'Leadership Buy-in',
+  tech: 'Technical Implementation',
 }
 
 export const PILLAR_ICONS: Record<string, LucideIcon> = {
@@ -149,5 +214,6 @@ export const PILLAR_ICONS: Record<string, LucideIcon> = {
   data_literacy: BarChart3,
   output_evaluation: SearchCheck,
   leadership_buyin: Target,
+  tech: Code,
 }
 

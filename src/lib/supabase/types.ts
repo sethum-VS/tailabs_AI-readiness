@@ -120,11 +120,19 @@ export type Database = {
           invite_id: string | null
           respondent_name: string
           respondent_role: string
-          tool_usage_score: number
-          workflow_automation_score: number
-          data_literacy_score: number
-          output_evaluation_score: number
-          leadership_buyin_score: number
+          respondent_department: string | null
+          tool_usage_score: number | null
+          workflow_automation_score: number | null
+          data_literacy_score: number | null
+          output_evaluation_score: number | null
+          leadership_buyin_score: number | null
+          tech_coding_score: number | null
+          tech_ml_concepts_score: number | null
+          tech_infrastructure_score: number | null
+          tech_observability_score: number | null
+          tech_applied_practice_score: number | null
+          tech_deployment_score: number | null
+          tech_total_score: number | null
           individual_score: number
           created_at: string
         }
@@ -134,11 +142,19 @@ export type Database = {
           invite_id?: string | null
           respondent_name: string
           respondent_role: string
-          tool_usage_score: number
-          workflow_automation_score: number
-          data_literacy_score: number
-          output_evaluation_score: number
-          leadership_buyin_score: number
+          respondent_department?: string | null
+          tool_usage_score?: number | null
+          workflow_automation_score?: number | null
+          data_literacy_score?: number | null
+          output_evaluation_score?: number | null
+          leadership_buyin_score?: number | null
+          tech_coding_score?: number | null
+          tech_ml_concepts_score?: number | null
+          tech_infrastructure_score?: number | null
+          tech_observability_score?: number | null
+          tech_applied_practice_score?: number | null
+          tech_deployment_score?: number | null
+          tech_total_score?: number | null
           individual_score: number
           created_at?: string
         }
@@ -148,11 +164,19 @@ export type Database = {
           invite_id?: string | null
           respondent_name?: string
           respondent_role?: string
-          tool_usage_score?: number
-          workflow_automation_score?: number
-          data_literacy_score?: number
-          output_evaluation_score?: number
-          leadership_buyin_score?: number
+          respondent_department?: string | null
+          tool_usage_score?: number | null
+          workflow_automation_score?: number | null
+          data_literacy_score?: number | null
+          output_evaluation_score?: number | null
+          leadership_buyin_score?: number | null
+          tech_coding_score?: number | null
+          tech_ml_concepts_score?: number | null
+          tech_infrastructure_score?: number | null
+          tech_observability_score?: number | null
+          tech_applied_practice_score?: number | null
+          tech_deployment_score?: number | null
+          tech_total_score?: number | null
           individual_score?: number
           created_at?: string
         }
