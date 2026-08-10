@@ -11,6 +11,7 @@ import { MacroScorecard } from '@/components/admin/MacroScorecard'
 import { TeamDisparityChart } from '@/components/admin/TeamDisparityChart'
 import { ActionMatrix } from '@/components/admin/ActionMatrix'
 import { DashboardSkeleton } from '@/components/admin/DashboardSkeleton'
+import { DepartmentBreakdownCard } from '@/components/admin/DepartmentBreakdownCard'
 import type { Recommendation } from '@/lib/scoringEngine'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -21,13 +22,8 @@ interface TeamData {
   aggregate_score: number
   target_seats: number
   response_count: number
-  pillar_averages: {
-    tool_usage: number
-    workflow_automation: number
-    data_literacy: number
-    output_evaluation: number
-    leadership_buyin: number
-  }
+  is_tech?: boolean
+  pillar_averages: Record<string, number>
 }
 
 interface DashboardData {
@@ -419,56 +415,18 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-                {(data?.teams ?? []).map((team) => {
-                  const pillars = [
-                    { pillarKey: 'tool_usage', label: 'Tool Usage', score: team.pillar_averages.tool_usage },
-                    { pillarKey: 'workflow_automation', label: 'Workflow', score: team.pillar_averages.workflow_automation },
-                    { pillarKey: 'data_literacy', label: 'Data Literacy', score: team.pillar_averages.data_literacy },
-                    { pillarKey: 'output_evaluation', label: 'Output Eval', score: team.pillar_averages.output_evaluation },
-                    { pillarKey: 'leadership_buyin', label: 'Leadership', score: team.pillar_averages.leadership_buyin },
-                  ]
-
-                  const scoreColor =
-                    team.aggregate_score >= 70 ? '#4CAF50' :
-                    team.aggregate_score >= 40 ? '#FF7300' : '#F44336'
-
-                  return (
-                    <div key={team.id} className="oxygen-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h4 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>{team.name}</h4>
-                        <span style={{ fontSize: '20px', fontWeight: '700', color: scoreColor }}>
-                          {team.aggregate_score.toFixed(0)}%
-                        </span>
-                      </div>
-                      <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: 0 }}>
-                        {team.response_count} / {team.target_seats} responses
-                      </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {pillars.map(({ pillarKey, label, score }) => (
-                          <div key={pillarKey}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', alignItems: 'center' }}>
-                              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <PillarIcon pillar={pillarKey} size={14} />
-                                <span>{label}</span>
-                              </span>
-                              <span style={{ fontSize: '12px', fontWeight: '500' }}>{score}%</span>
-                            </div>
-                            <div style={{ height: '4px', background: 'var(--color-border)', borderRadius: '999px', overflow: 'hidden' }}>
-                              <div
-                                style={{
-                                  height: '100%',
-                                  width: `${score}%`,
-                                  background: score >= 70 ? '#4CAF50' : score >= 40 ? '#FF7300' : '#F44336',
-                                  borderRadius: '999px',
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
+                {(data?.teams ?? []).map((team) => (
+                  <DepartmentBreakdownCard
+                    key={team.id}
+                    id={team.id}
+                    name={team.name}
+                    aggregate_score={team.aggregate_score}
+                    target_seats={team.target_seats}
+                    response_count={team.response_count}
+                    is_tech={team.is_tech}
+                    pillar_averages={team.pillar_averages}
+                  />
+                ))}
               </div>
             )}
           </div>

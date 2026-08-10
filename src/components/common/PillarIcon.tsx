@@ -1,4 +1,4 @@
-import { Wrench, Workflow, BarChart3, SearchCheck, Target, Pin, type LucideIcon } from 'lucide-react'
+import { Wrench, Workflow, BarChart3, SearchCheck, Target, Pin, Code, type LucideIcon } from 'lucide-react'
 
 export const PILLAR_LUCIDE_MAP: Record<string, LucideIcon> = {
   tool_usage: Wrench,
@@ -6,6 +6,7 @@ export const PILLAR_LUCIDE_MAP: Record<string, LucideIcon> = {
   data_literacy: BarChart3,
   output_evaluation: SearchCheck,
   leadership_buyin: Target,
+  tech: Code,
 }
 
 interface PillarIconProps {
