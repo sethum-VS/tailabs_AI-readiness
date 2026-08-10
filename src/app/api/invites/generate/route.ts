@@ -26,16 +26,22 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Verify the org exists
+    // Verify the org exists & fetch settings
     const { data: org } = await supabase
       .from('organizations')
-      .select('id')
+      .select('id, name, default_seat_target, link_validity_days')
       .eq('id', orgId)
-      .maybeSingle() as unknown as { data: { id: string } | null }
+      .maybeSingle() as unknown as {
+        data: { id: string; name: string; default_seat_target?: number | null; link_validity_days?: number | null } | null
+      }
 
     if (!org) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
+
+    const effectiveTargetSeats = target_seats || org.default_seat_target || 10
+    const validityDays = org.link_validity_days || 30
+    const expiresAt = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000).toISOString()
 
     // Find or create team within this guest's org only
     let teamId: string
@@ -49,10 +55,15 @@ export async function POST(request: NextRequest) {
 
     if (existingTeam) {
       teamId = existingTeam.id
+      // Update team target seats if it changed
+      await supabase
+        .from('teams')
+        .update({ target_seats: effectiveTargetSeats } as never)
+        .eq('id', teamId)
     } else {
       const { data: newTeam, error: teamError } = await supabase
         .from('teams')
-        .insert({ organization_id: orgId, name: team_name, target_seats } as never)
+        .insert({ organization_id: orgId, name: team_name, target_seats: effectiveTargetSeats } as never)
         .select('id')
         .single() as unknown as { data: { id: string } | null; error: unknown }
 
@@ -68,7 +79,13 @@ export async function POST(request: NextRequest) {
 
     const { data: invite, error: inviteError } = await supabase
       .from('assessment_invites')
-      .insert({ team_id: teamId, token, title: 'AI Readiness Assessment', status: 'pending' } as never)
+      .insert({
+        team_id: teamId,
+        token,
+        title: `${org.name || 'AI Readiness'} Assessment`,
+        status: 'pending',
+        expires_at: expiresAt,
+      } as never)
       .select('id, token')
       .single() as unknown as { data: { id: string; token: string } | null; error: unknown }
 

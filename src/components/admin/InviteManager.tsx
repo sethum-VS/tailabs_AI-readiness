@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { OnboardingTour } from '@/components/admin/OnboardingTour'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -171,19 +172,35 @@ export function InviteManager() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   // Form state
+  const [savedOrgName, setSavedOrgName] = useState('')
   const [orgName, setOrgName] = useState('')
   const [selectedTeam, setSelectedTeam] = useState('')
   const [customTeam, setCustomTeam] = useState('')
+  const [defaultSeatSetting, setDefaultSeatSetting] = useState(10)
   const [targetSeats, setTargetSeats] = useState(10)
 
-  // ─── Fetch invites ────────────────────────────────────────────────────────
+  // ─── Fetch invites & settings ─────────────────────────────────────────────
 
   const fetchInvites = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/invites/list')
-      const data = await res.json()
+      const [invitesRes, settingsRes] = await Promise.all([
+        fetch('/api/invites/list'),
+        fetch('/api/settings'),
+      ])
+      const data = await invitesRes.json()
       if (data.invites) setInvites(data.invites)
+
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json()
+        if (settingsData.org_name) {
+          setSavedOrgName(settingsData.org_name)
+        }
+        if (settingsData.default_seat_target) {
+          setDefaultSeatSetting(settingsData.default_seat_target)
+          setTargetSeats(settingsData.default_seat_target)
+        }
+      }
     } catch {
       toast.error('Failed to load invites')
     } finally {
@@ -235,6 +252,8 @@ export function InviteManager() {
       if (data.url) {
         setGeneratedUrl(data.url)
         await fetchInvites()
+        localStorage.setItem('tai_onboarding_completed', 'true')
+        sessionStorage.removeItem('tai_tour_step_index')
         toast.success('Magic link generated!', {
           description: `Assessment link created for ${teamName}`,
         })
@@ -254,7 +273,7 @@ export function InviteManager() {
     setOrgName('')
     setSelectedTeam('')
     setCustomTeam('')
-    setTargetSeats(10)
+    setTargetSeats(defaultSeatSetting)
   }
 
   return (
@@ -296,6 +315,7 @@ export function InviteManager() {
             Refresh
           </button>
           <button
+            id="generate-link-cta"
             className="btn-primary"
             onClick={() => setShowGenDialog(true)}
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -435,7 +455,9 @@ export function InviteManager() {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         <span style={{ fontWeight: '500', fontSize: '14px' }}>{invite.team_name}</span>
                         <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                          {invite.organization_name}
+                          {invite.organization_name && invite.organization_name !== 'Unknown' && invite.organization_name !== 'My Organization'
+                            ? invite.organization_name
+                            : (savedOrgName || invite.organization_name || 'My Organization')}
                         </span>
                       </div>
                     </td>
@@ -586,7 +608,7 @@ export function InviteManager() {
               Generate Assessment Link
             </DialogTitle>
             <DialogDescription style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
-              Create a tokenized magic link bound to a specific team. Share this with team members to begin their assessment.
+              Create a tokenized magic link for {savedOrgName ? <strong style={{ color: 'var(--color-text-primary)' }}>{savedOrgName}</strong> : 'your organization'} bound to a specific team. Share this with team members to begin their assessment.
             </DialogDescription>
           </DialogHeader>
 
@@ -795,6 +817,8 @@ export function InviteManager() {
           )}
         </DialogContent>
       </Dialog>
+
+      <OnboardingTour onOpenGenerateDialog={() => setShowGenDialog(true)} />
     </div>
   )
 }

@@ -17,6 +17,8 @@ export type Database = {
           updated_at: string
           aggregate_score: number
           guest_id: string | null
+          default_seat_target: number
+          link_validity_days: number
         }
         Insert: {
           id?: string
@@ -25,6 +27,8 @@ export type Database = {
           updated_at?: string
           aggregate_score?: number
           guest_id?: string | null
+          default_seat_target?: number
+          link_validity_days?: number
         }
         Update: {
           id?: string
@@ -33,6 +37,8 @@ export type Database = {
           updated_at?: string
           aggregate_score?: number
           guest_id?: string | null
+          default_seat_target?: number
+          link_validity_days?: number
         }
       }
       guest_sessions: {

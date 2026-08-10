@@ -4,6 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { LayoutDashboard, Share2 } from 'lucide-react'
 
+import { RestartTourButton } from '@/components/admin/OnboardingTour'
+
 export const metadata: Metadata = {
   title: 'Assessment Distribution | TAI Readiness',
   description: 'Generate and manage tokenized AI readiness assessment links for your teams.',
@@ -45,8 +47,8 @@ export default function DistributionPage() {
             />
           </Link>
 
-          {/* Nav links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {/* Nav links & actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Link
               href="/admin"
               style={{
@@ -84,6 +86,7 @@ export default function DistributionPage() {
               <Share2 size={15} />
               <span className="hide-mobile">Distribution</span>
             </Link>
+            <RestartTourButton />
           </div>
         </div>
       </nav>

@@ -28,6 +28,8 @@ interface OrgRow {
   id: string
   name: string
   aggregate_score: number
+  default_seat_target?: number | null
+  link_validity_days?: number | null
 }
 
 export async function GET(request: NextRequest) {
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
     // 1. Fetch this guest's organization only
     const { data: org } = await supabase
       .from('organizations')
-      .select('id, name, aggregate_score')
+      .select('id, name, aggregate_score, default_seat_target, link_validity_days')
       .eq('id', orgId)
       .maybeSingle() as unknown as { data: OrgRow | null }
 
@@ -53,6 +55,8 @@ export async function GET(request: NextRequest) {
         has_data: false,
         org_score: 0,
         org_name: 'Your Organization',
+        default_seat_target: 10,
+        link_validity_days: 30,
         teams: [],
         recommendations: [],
         total_responses: 0,
@@ -73,6 +77,8 @@ export async function GET(request: NextRequest) {
         has_data: false,
         org_score: org.aggregate_score,
         org_name: org.name,
+        default_seat_target: org.default_seat_target ?? 10,
+        link_validity_days: org.link_validity_days ?? 30,
         teams: [],
         recommendations: [],
         total_responses: 0,
@@ -256,6 +262,8 @@ export async function GET(request: NextRequest) {
       has_data: totalResponses > 0,
       org_score: Math.round(overallOrgScore * 100) / 100,
       org_name: org.name,
+      default_seat_target: org.default_seat_target ?? 10,
+      link_validity_days: org.link_validity_days ?? 30,
       org_pillar_averages: orgPillarAverages,
       teams: enrichedTeams,
       recommendations,
