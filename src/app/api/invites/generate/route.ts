@@ -12,9 +12,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { team_name, target_seats = 10 } = body as {
+    const { team_name, target_seats = 10, selected_scenario_id } = body as {
       team_name: string
       target_seats?: number
+      selected_scenario_id?: string
     }
 
     if (!team_name) {
@@ -80,17 +81,44 @@ export async function POST(request: NextRequest) {
     const fallbackUrl = host ? `${proto}://${host}` : 'http://localhost:3000'
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || fallbackUrl
 
-    const { data: invite, error: inviteError } = await supabase
+    const scenarioQueryParam = selected_scenario_id && selected_scenario_id !== 'all'
+      ? `&scenario=${encodeURIComponent(selected_scenario_id)}`
+      : ''
+
+    let { data: invite, error: inviteError } = await supabase
       .from('assessment_invites')
       .insert({
         team_id: teamId,
         token,
         title: `${org.name || 'AI Readiness'} Assessment`,
         status: 'pending',
+        selected_scenario_id: selected_scenario_id || 'all',
         expires_at: expiresAt,
       } as never)
       .select('id, token')
       .single() as unknown as { data: { id: string; token: string } | null; error: unknown }
+
+    if (inviteError) {
+      console.error('Invite insert with selected_scenario_id error:', inviteError)
+      // Fallback insert without selected_scenario_id if column fails
+      const fallbackResult = await supabase
+        .from('assessment_invites')
+        .insert({
+          team_id: teamId,
+          token,
+          title: `${org.name || 'AI Readiness'} Assessment`,
+          status: 'pending',
+          expires_at: expiresAt,
+        } as never)
+        .select('id, token')
+        .single() as unknown as { data: { id: string; token: string } | null; error: unknown }
+
+      invite = fallbackResult.data
+      inviteError = fallbackResult.error
+      if (inviteError) {
+        console.error('Fallback invite insert error:', inviteError)
+      }
+    }
 
     if (inviteError || !invite) {
       return NextResponse.json({ error: 'Failed to create invite' }, { status: 500 })
@@ -100,7 +128,7 @@ export async function POST(request: NextRequest) {
       success: true,
       invite_id: invite.id,
       token: invite.token,
-      url: `${appUrl}/eval/invite?token=${invite.token}`,
+      url: `${appUrl}/eval/invite?token=${invite.token}${scenarioQueryParam}`,
     })
   } catch (err) {
     console.error('Generate invite error:', err)

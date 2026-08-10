@@ -12,6 +12,7 @@ import { TeamDisparityChart } from '@/components/admin/TeamDisparityChart'
 import { ActionMatrix } from '@/components/admin/ActionMatrix'
 import { DashboardSkeleton } from '@/components/admin/DashboardSkeleton'
 import { DepartmentBreakdownCard } from '@/components/admin/DepartmentBreakdownCard'
+import { TemplateEditor } from '@/components/admin/TemplateEditor'
 import { OnboardingTour, RestartTourButton } from '@/components/admin/OnboardingTour'
 import type { Recommendation } from '@/lib/scoringEngine'
 
@@ -659,6 +660,9 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Assessment Templates & Scoring Customization */}
+            <TemplateEditor />
 
             {/* Security & Data Privacy Card */}
             <div className="oxygen-card">

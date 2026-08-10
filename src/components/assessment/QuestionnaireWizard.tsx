@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { ChevronRight, ChevronLeft, CheckCircle2, Sparkles, Server, Lock } from 'lucide-react'
 import { PillarIcon } from '@/components/common/PillarIcon'
 import Image from 'next/image'
 import type { TokenContext } from './TokenValidator'
 import { TECHNICAL_SCENARIO, type VectorScores } from './technicalScenarioConfig'
+import type { AssessmentSchemaPayload } from '@/lib/defaultTemplates'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -277,10 +279,57 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
   const [techSelection, setTechSelection] = useState<string | undefined>()
   const [transitionContext, setTransitionContext] = useState<string | undefined>()
 
+  const searchParams = useSearchParams()
+  const scenarioParam = searchParams?.get('scenario') || ''
+
+  const [template, setTemplate] = useState<AssessmentSchemaPayload | null>(null)
+
+  useEffect(() => {
+    const fetchActiveTemplate = async () => {
+      try {
+        const scenarioQuery = scenarioParam ? `&scenario=${encodeURIComponent(scenarioParam)}` : ''
+        const res = await fetch(`/api/assessment/template?token=${encodeURIComponent(token || '')}&department=${encodeURIComponent(department || 'Engineering')}${scenarioQuery}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.template) {
+            setTemplate(data.template)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching assessment template:', err)
+      }
+    }
+    fetchActiveTemplate()
+  }, [token, department, scenarioParam])
+
+  const activePillars = template?.pillars || PILLARS
+  const activeScenario = useMemo(() => {
+    if (template?.scenarios && template.scenarios.length > 0) {
+      if (template.scenarios.length === 1) {
+        return template.scenarios[0]
+      }
+
+      // Combine all scenario nodes into a single multi-scenario sequence
+      const combinedNodes = template.scenarios.flatMap((sc, scIdx) =>
+        (sc.nodes || []).map((node, nodeIdx) => ({
+          ...node,
+          context: node.context || (nodeIdx === 0 ? `Scenario ${scIdx + 1}: ${sc.title}` : undefined),
+        }))
+      )
+
+      return {
+        scenario_id: 'combined_scenarios',
+        title: `Selected Technical Scenarios (${template.scenarios.length} Scenarios)`,
+        nodes: combinedNodes,
+      }
+    }
+    return template?.scenario || TECHNICAL_SCENARIO
+  }, [template])
+
   const isTechRole = department === 'Engineering' || department === 'Data'
-  const currentPillarData = PILLARS[currentPillar]
+  const currentPillarData = activePillars[currentPillar]
   const currentSelection = currentPillarData ? scores[currentPillarData.key] : undefined
-  const currentTechNode = TECHNICAL_SCENARIO.nodes[techStep]
+  const currentTechNode = activeScenario.nodes[techStep]
 
   // ─── Keyboard shortcuts ────────────────────────────────────────────────────
 
@@ -371,7 +420,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
         setTechScores(updatedScores)
       }
 
-      if (techStep < TECHNICAL_SCENARIO.nodes.length - 1) {
+      if (techStep < activeScenario.nodes.length - 1) {
         setTransitionContext(selectedOption?.next_context)
         setTimeout(() => {
           setTechStep((p) => p + 1)
@@ -388,7 +437,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
         return
       }
       
-      if (currentPillar < PILLARS.length - 1) {
+      if (currentPillar < activePillars.length - 1) {
         setTimeout(() => {
           setCurrentPillar((p) => p + 1)
           setAnimating(false)
@@ -529,7 +578,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
           <div style={{ padding: '16px 20px 0' }}>
             <AssessmentProgressBar 
               current={isTechRole ? techStep : currentPillar} 
-              total={isTechRole ? TECHNICAL_SCENARIO.nodes.length : PILLARS.length} 
+              total={isTechRole ? activeScenario.nodes.length : activePillars.length} 
             />
           </div>
         )}
@@ -755,10 +804,10 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                           color: 'var(--color-brand-accent)',
                         }}
                       >
-                        Step {techStep + 1} of {TECHNICAL_SCENARIO.nodes.length}
+                        Step {techStep + 1} of {activeScenario.nodes.length}
                       </div>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-secondary)' }}>
-                        {TECHNICAL_SCENARIO.title}
+                        {activeScenario.title}
                       </div>
                     </div>
                   </div>
@@ -857,7 +906,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                     >
                       {submitting ? (
                         'Submitting…'
-                      ) : techStep === TECHNICAL_SCENARIO.nodes.length - 1 ? (
+                      ) : techStep === activeScenario.nodes.length - 1 ? (
                         <>Submit Assessment <CheckCircle2 size={16} /></>
                       ) : (
                         <>Next <ChevronRight size={16} /></>
@@ -897,7 +946,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                           color: 'var(--color-brand-accent)',
                         }}
                       >
-                        Pillar {currentPillar + 1} of {PILLARS.length}
+                        Pillar {currentPillar + 1} of {activePillars.length}
                       </div>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-secondary)' }}>
                         {currentPillarData.pillar}
@@ -997,7 +1046,7 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
                     >
                       {submitting ? (
                         'Submitting…'
-                      ) : currentPillar === PILLARS.length - 1 ? (
+                      ) : currentPillar === activePillars.length - 1 ? (
                         <>Submit Assessment <CheckCircle2 size={16} /></>
                       ) : (
                         <>Next <ChevronRight size={16} /></>

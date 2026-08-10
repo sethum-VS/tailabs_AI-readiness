@@ -6,6 +6,7 @@ interface InviteWithRelations {
   token: string
   title: string
   status: 'pending' | 'active' | 'completed' | 'expired'
+  selected_scenario_id?: string | null
   created_at: string
   expires_at: string
   team_id: string
@@ -38,13 +39,14 @@ export async function GET(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('assessment_invites')
       .select(`
         id,
         token,
         title,
         status,
+        selected_scenario_id,
         created_at,
         expires_at,
         team_id,
@@ -62,6 +64,41 @@ export async function GET(request: NextRequest) {
         )
       `)
       .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Fetch invites error with selected_scenario_id:', error)
+      // Fallback query without selected_scenario_id
+      const fallbackResult = await supabase
+        .from('assessment_invites')
+        .select(`
+          id,
+          token,
+          title,
+          status,
+          created_at,
+          expires_at,
+          team_id,
+          teams (
+            id,
+            name,
+            target_seats,
+            aggregate_score,
+            organization_id,
+            organizations (
+              id,
+              name,
+              aggregate_score
+            )
+          )
+        `)
+        .order('created_at', { ascending: false })
+
+      data = fallbackResult.data
+      error = fallbackResult.error
+      if (error) {
+        console.error('Fallback fetch invites error:', error)
+      }
+    }
 
     if (error) {
       return NextResponse.json({ error: 'Failed to fetch invites' }, { status: 500 })
@@ -119,11 +156,15 @@ export async function GET(request: NextRequest) {
           .then()
       }
 
+      const scenarioQueryParam = invite.selected_scenario_id && invite.selected_scenario_id !== 'all'
+        ? `&scenario=${encodeURIComponent(invite.selected_scenario_id)}`
+        : ''
+
       return {
         id: invite.id,
         token: invite.token,
         masked_token: `${invite.token.slice(0, 8)}...${invite.token.slice(-6)}`,
-        invite_url: `${appUrl}/eval/invite?token=${invite.token}`,
+        invite_url: `${appUrl}/eval/invite?token=${invite.token}${scenarioQueryParam}`,
         title: invite.title,
         status: computedStatus,
         created_at: invite.created_at,
@@ -135,6 +176,7 @@ export async function GET(request: NextRequest) {
         organization_name: org?.name ?? 'Unknown',
         organization_id: org?.id,
         team_score: team?.aggregate_score ?? 0,
+        selected_scenario_id: invite.selected_scenario_id || 'all',
       }
     })
 

@@ -14,7 +14,9 @@ import {
   ChevronRight,
   Building2,
   ExternalLink,
+  Cpu,
 } from 'lucide-react'
+import { ScenarioConfig, AssessmentSchemaPayload } from '@/lib/defaultTemplates'
 import {
   Dialog,
   DialogContent,
@@ -179,6 +181,12 @@ export function InviteManager() {
   const [defaultSeatSetting, setDefaultSeatSetting] = useState(10)
   const [targetSeats, setTargetSeats] = useState(10)
 
+  // Technical Scenario prompt & step state
+  const [genDialogStep, setGenDialogStep] = useState<'form' | 'scenario' | 'success'>('form')
+  const [availableScenarios, setAvailableScenarios] = useState<ScenarioConfig[]>([])
+  const [selectedScenarioIds, setSelectedScenarioIds] = useState<string[]>(['all'])
+  const [checkingTemplate, setCheckingTemplate] = useState(false)
+
   // ─── Fetch invites & settings ─────────────────────────────────────────────
 
   const fetchInvites = useCallback(async () => {
@@ -228,9 +236,9 @@ export function InviteManager() {
     }
   }
 
-  // ─── Generate invite ──────────────────────────────────────────────────────
+  // ─── Generate invite logic ────────────────────────────────────────────────
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (scenarioId: string = 'all') => {
     const teamName = selectedTeam === '__custom__' ? customTeam : selectedTeam
     if (!teamName.trim()) {
       toast.error('Please select or enter a team name')
@@ -245,12 +253,14 @@ export function InviteManager() {
         body: JSON.stringify({
           team_name: teamName.trim(),
           target_seats: targetSeats,
+          selected_scenario_id: scenarioId,
         }),
       })
       const data = await res.json()
 
       if (data.url) {
         setGeneratedUrl(data.url)
+        setGenDialogStep('success')
         await fetchInvites()
         localStorage.setItem('tai_onboarding_completed', 'true')
         sessionStorage.removeItem('tai_tour_step_index')
@@ -267,8 +277,51 @@ export function InviteManager() {
     }
   }
 
+  const handleInitiateGenerate = async () => {
+    const teamName = selectedTeam === '__custom__' ? customTeam : selectedTeam
+    if (!teamName.trim()) {
+      toast.error('Please select or enter a team name')
+      return
+    }
+
+    const lowerTeam = teamName.trim().toLowerCase()
+    const isTechnical = lowerTeam.includes('engineering') || lowerTeam.includes('data') || lowerTeam.includes('tech')
+
+    if (isTechnical) {
+      setCheckingTemplate(true)
+      try {
+        const res = await fetch('/api/admin/templates?department_type=Engineering')
+        if (res.ok) {
+          const data = await res.json()
+          const isCustom = data.is_custom
+          const tmpl: AssessmentSchemaPayload = data.template
+          const scenarios = tmpl?.scenarios && tmpl.scenarios.length > 0
+            ? tmpl.scenarios
+            : (tmpl?.scenario ? [tmpl.scenario] : [])
+
+          // Rule: If system is default (is_custom === false) AND <= 1 scenario -> NO PROMPT STEP!
+          if (isCustom || scenarios.length > 1) {
+            setAvailableScenarios(scenarios)
+            setSelectedScenarioIds(['all'])
+            setGenDialogStep('scenario')
+            setCheckingTemplate(false)
+            return
+          }
+        }
+      } catch (err) {
+        console.error('Error checking template for scenario prompt:', err)
+      } finally {
+        setCheckingTemplate(false)
+      }
+    }
+
+    // Directly generate without prompt if system default or non-technical
+    await handleGenerate('all')
+  }
+
   const handleCloseDialog = () => {
     setShowGenDialog(false)
+    setGenDialogStep('form')
     setGeneratedUrl(null)
     setOrgName('')
     setSelectedTeam('')
@@ -544,7 +597,6 @@ export function InviteManager() {
                             border: `1px solid ${copiedId === invite.id ? 'var(--color-success)' : 'var(--color-border)'}`,
                             borderRadius: '4px',
                             cursor: 'pointer',
-                            transition: 'all 0.15s ease',
                           }}
                         >
                           {copiedId === invite.id ? (
@@ -587,7 +639,7 @@ export function InviteManager() {
         )}
       </div>
 
-      {/* ─── Generate Link Dialog ─────────────────────────────────────────────── */}
+      {/* ─── Generate Link Wizard Dialog ─────────────────────────────────────── */}
       <Dialog open={showGenDialog} onOpenChange={(open) => !open && handleCloseDialog()}>
         <DialogContent
           style={{
@@ -601,111 +653,259 @@ export function InviteManager() {
             padding: '24px 20px',
           }}
         >
-          <DialogHeader>
-            <DialogTitle
-              style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)' }}
-            >
-              Generate Assessment Link
-            </DialogTitle>
-            <DialogDescription style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
-              Create a tokenized magic link for {savedOrgName ? <strong style={{ color: 'var(--color-text-primary)' }}>{savedOrgName}</strong> : 'your organization'} bound to a specific team. Share this with team members to begin their assessment.
-            </DialogDescription>
-          </DialogHeader>
+          {genDialogStep === 'form' && (
+            <>
+              <DialogHeader>
+                <DialogTitle
+                  style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)' }}
+                >
+                  Generate Assessment Link
+                </DialogTitle>
+                <DialogDescription style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                  Create a tokenized magic link for {savedOrgName ? <strong style={{ color: 'var(--color-text-primary)' }}>{savedOrgName}</strong> : 'your organization'} bound to a specific team. Share this with team members to begin their assessment.
+                </DialogDescription>
+              </DialogHeader>
 
-          {!generatedUrl ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '8px' }}>
-
-              {/* Team */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <Label style={{ fontSize: '13px', fontWeight: '500' }}>
-                  Team / Department <span style={{ color: 'var(--color-danger)' }}>*</span>
-                </Label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '8px' }}>
-                  {PRESET_TEAMS.map((team) => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '8px' }}>
+                {/* Team */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <Label style={{ fontSize: '13px', fontWeight: '500' }}>
+                    Team / Department <span style={{ color: 'var(--color-danger)' }}>*</span>
+                  </Label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '8px' }}>
+                    {PRESET_TEAMS.map((team) => (
+                      <button
+                        key={team}
+                        onClick={() => setSelectedTeam(team)}
+                        style={{
+                          padding: '10px 12px',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          borderRadius: '6px',
+                          border: `2px solid ${selectedTeam === team ? 'var(--color-brand-accent)' : 'var(--color-border)'}`,
+                          background: selectedTeam === team ? 'rgba(255, 115, 0, 0.08)' : 'var(--color-bg-card)',
+                          color: selectedTeam === team ? 'var(--color-brand-accent)' : 'var(--color-text-primary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {team}
+                      </button>
+                    ))}
                     <button
-                      key={team}
-                      onClick={() => setSelectedTeam(team)}
+                      onClick={() => {
+                        setSelectedTeam('__custom__')
+                        setShowCreateTeam(true)
+                      }}
                       style={{
                         padding: '10px 12px',
                         fontSize: '13px',
                         fontWeight: '500',
                         borderRadius: '6px',
-                        border: `2px solid ${selectedTeam === team ? 'var(--color-brand-accent)' : 'var(--color-border)'}`,
-                        background: selectedTeam === team ? 'rgba(255, 115, 0, 0.08)' : 'var(--color-bg-card)',
-                        color: selectedTeam === team ? 'var(--color-brand-accent)' : 'var(--color-text-primary)',
+                        border: `2px solid ${selectedTeam === '__custom__' ? 'var(--color-brand-accent)' : 'var(--color-border)'}`,
+                        background: selectedTeam === '__custom__' ? 'rgba(255, 115, 0, 0.08)' : 'var(--color-bg-card)',
+                        color: selectedTeam === '__custom__' ? 'var(--color-brand-accent)' : 'var(--color-text-secondary)',
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px',
                       }}
                     >
-                      {team}
+                      <Plus size={13} /> Custom
                     </button>
-                  ))}
+                  </div>
+
+                  {selectedTeam === '__custom__' && (
+                    <Input
+                      placeholder="Enter team name"
+                      value={customTeam}
+                      onChange={(e) => setCustomTeam(e.target.value)}
+                      style={{ fontSize: '14px', marginTop: '8px' }}
+                      autoFocus
+                    />
+                  )}
+                </div>
+
+                {/* Target Seats */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <Label htmlFor="target-seats" style={{ fontSize: '13px', fontWeight: '500' }}>
+                    Target Respondents
+                  </Label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Input
+                      id="target-seats"
+                      type="number"
+                      min={1}
+                      max={500}
+                      value={targetSeats}
+                      onChange={(e) => setTargetSeats(parseInt(e.target.value) || 10)}
+                      style={{ fontSize: '14px', maxWidth: '100px' }}
+                    />
+                    <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+                      team members expected to respond
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', paddingTop: '8px' }}>
+                  <button className="btn-secondary" onClick={handleCloseDialog}>
+                    Cancel
+                  </button>
                   <button
-                    onClick={() => {
-                      setSelectedTeam('__custom__')
-                      setShowCreateTeam(true)
-                    }}
-                    style={{
-                      padding: '10px 12px',
-                      fontSize: '13px',
-                      fontWeight: '500',
-                      borderRadius: '6px',
-                      border: `2px solid ${selectedTeam === '__custom__' ? 'var(--color-brand-accent)' : 'var(--color-border)'}`,
-                      background: selectedTeam === '__custom__' ? 'rgba(255, 115, 0, 0.08)' : 'var(--color-bg-card)',
-                      color: selectedTeam === '__custom__' ? 'var(--color-brand-accent)' : 'var(--color-text-secondary)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px',
-                    }}
+                    className="btn-primary"
+                    onClick={handleInitiateGenerate}
+                    disabled={generating || checkingTemplate || (!selectedTeam || (selectedTeam === '__custom__' && !customTeam.trim()))}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: (generating || checkingTemplate) ? 0.7 : 1 }}
                   >
-                    <Plus size={13} /> Custom
+                    {generating || checkingTemplate ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" />
+                        {checkingTemplate ? 'Checking Scenarios...' : 'Generating...'}
+                      </>
+                    ) : (
+                      <>
+                        <Link2 size={14} />
+                        Generate Magic Link
+                      </>
+                    )}
                   </button>
                 </div>
+              </div>
+            </>
+          )}
 
+          {genDialogStep === 'scenario' && (
+            <>
+              <DialogHeader>
+                <DialogTitle
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)' }}
+                >
+                  <Cpu size={20} color="var(--color-brand-accent)" />
+                  Select Technical Scenarios for Link
+                </DialogTitle>
+                <DialogDescription style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
+                  Choose which technical scenario questions this assessment magic link should present to team members:
+                </DialogDescription>
+              </DialogHeader>
 
-                {selectedTeam === '__custom__' && (
-                  <Input
-                    placeholder="Enter team name"
-                    value={customTeam}
-                    onChange={(e) => setCustomTeam(e.target.value)}
-                    style={{ fontSize: '14px', marginTop: '8px' }}
-                    autoFocus
-                  />
-                )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', margin: '16px 0' }}>
+                {/* Option: All Scenarios Combined */}
+                {(() => {
+                  const isAllSelected = selectedScenarioIds.includes('all') || selectedScenarioIds.length === 0
+
+                  return (
+                    <label
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        padding: '12px 14px',
+                        borderRadius: '8px',
+                        border: isAllSelected ? '2px solid var(--color-brand-accent)' : '1px solid var(--color-border)',
+                        background: isAllSelected ? 'rgba(255, 115, 0, 0.04)' : 'var(--color-bg-card)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        onChange={() => {
+                          setSelectedScenarioIds(['all'])
+                        }}
+                        style={{ marginTop: '3px', flexShrink: 0, accentColor: 'var(--color-brand-accent)', width: '16px', height: '16px' }}
+                      />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-primary)', display: 'block' }}>
+                          All Scenarios Combined (Full Assessment)
+                        </span>
+                        <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginTop: '2px' }}>
+                          Includes all configured technical scenarios for a comprehensive evaluation.
+                        </span>
+                      </div>
+                    </label>
+                  )
+                })()}
+
+                {/* Individual Scenarios */}
+                {availableScenarios.map((sc, idx) => {
+                  const scId = sc.scenario_id || `scenario_${idx}`
+                  const isAllSelected = selectedScenarioIds.includes('all')
+                  const isSelected = !isAllSelected && selectedScenarioIds.includes(scId)
+
+                  // Clean up duplicate title formatting
+                  const rawTitle = sc.title || `Scenario ${idx + 1}`
+                  const formattedTitle = rawTitle.toLowerCase().startsWith('scenario')
+                    ? rawTitle
+                    : `Scenario ${idx + 1}: ${rawTitle}`
+
+                  const toggleScenario = () => {
+                    let next: string[] = []
+                    if (isAllSelected) {
+                      next = [scId]
+                    } else if (selectedScenarioIds.includes(scId)) {
+                      next = selectedScenarioIds.filter((id) => id !== scId)
+                      if (next.length === 0) next = ['all']
+                    } else {
+                      next = [...selectedScenarioIds, scId]
+                      if (next.length >= availableScenarios.length) {
+                        next = ['all']
+                      }
+                    }
+                    setSelectedScenarioIds(next)
+                  }
+
+                  return (
+                    <label
+                      key={scId}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        padding: '12px 14px',
+                        borderRadius: '8px',
+                        border: isSelected ? '2px solid var(--color-brand-accent)' : '1px solid var(--color-border)',
+                        background: isSelected ? 'rgba(255, 115, 0, 0.04)' : 'var(--color-bg-card)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={toggleScenario}
+                        style={{ marginTop: '3px', flexShrink: 0, accentColor: 'var(--color-brand-accent)', width: '16px', height: '16px' }}
+                      />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-primary)', display: 'block' }}>
+                          {formattedTitle}
+                        </span>
+                        <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', marginTop: '2px' }}>
+                          Focuses specifically on this scenario ({sc.nodes?.length || 0} steps).
+                        </span>
+                      </div>
+                    </label>
+                  )
+                })}
               </div>
 
-              {/* Target Seats */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <Label htmlFor="target-seats" style={{ fontSize: '13px', fontWeight: '500' }}>
-                  Target Respondents
-                </Label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Input
-                    id="target-seats"
-                    type="number"
-                    min={1}
-                    max={500}
-                    value={targetSeats}
-                    onChange={(e) => setTargetSeats(parseInt(e.target.value) || 10)}
-                    style={{ fontSize: '14px', maxWidth: '100px' }}
-                  />
-                  <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
-                    team members expected to respond
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', paddingTop: '8px' }}>
-                <button className="btn-secondary" onClick={handleCloseDialog}>
-                  Cancel
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', paddingTop: '8px', flexWrap: 'wrap' }}>
+                <button className="btn-secondary" onClick={() => setGenDialogStep('form')} disabled={generating}>
+                  Back
                 </button>
                 <button
                   className="btn-primary"
-                  onClick={handleGenerate}
-                  disabled={generating || (!selectedTeam || (selectedTeam === '__custom__' && !customTeam.trim()))}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: generating ? 0.7 : 1 }}
+                  onClick={() => {
+                    const finalParam = (selectedScenarioIds.includes('all') || selectedScenarioIds.length === 0)
+                      ? 'all'
+                      : selectedScenarioIds.join(',')
+                    handleGenerate(finalParam)
+                  }}
+                  disabled={generating}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
                   {generating ? (
                     <>
@@ -715,105 +915,117 @@ export function InviteManager() {
                   ) : (
                     <>
                       <Link2 size={14} />
-                      Generate Magic Link
+                      Confirm & Generate Magic Link
                     </>
                   )}
                 </button>
               </div>
-            </div>
-          ) : (
-            /* ─── Generated URL Panel ──────────────────────────────────────────── */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '8px' }}>
-              <div
-                style={{
-                  padding: '16px',
-                  background: 'rgba(76, 175, 80, 0.06)',
-                  border: '1px solid rgba(76, 175, 80, 0.2)',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
-              >
-                <CheckCircle2 size={24} color="var(--color-success)" style={{ flexShrink: 0 }} />
-                <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#2E7D32', margin: '0 0 2px' }}>
-                    Magic Link Generated!
-                  </p>
-                  <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: 0 }}>
-                    Share this link with your team members to begin the assessment.
-                  </p>
-                </div>
-              </div>
+            </>
+          )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <Label style={{ fontSize: '13px', fontWeight: '500' }}>Assessment Link</Label>
+          {genDialogStep === 'success' && (
+            <>
+              <DialogHeader>
+                <DialogTitle style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                  Magic Link Generated!
+                </DialogTitle>
+                <DialogDescription style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                  Share this link with your team members to begin the assessment.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '8px' }}>
                 <div
                   style={{
+                    padding: '16px',
+                    background: 'rgba(76, 175, 80, 0.06)',
+                    border: '1px solid rgba(76, 175, 80, 0.2)',
+                    borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    background: 'var(--color-bg-app)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '6px',
-                    padding: '10px 14px',
+                    gap: '12px',
                   }}
                 >
-                  <code
+                  <CheckCircle2 size={24} color="var(--color-success)" style={{ flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontSize: '14px', fontWeight: '600', color: '#2E7D32', margin: '0 0 2px' }}>
+                      Assessment Link Ready
+                    </p>
+                    <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: 0 }}>
+                      Copy the link below and distribute to your team.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <Label style={{ fontSize: '13px', fontWeight: '500' }}>Assessment Link</Label>
+                  <div
                     style={{
-                      flex: 1,
-                      fontSize: '13px',
-                      color: 'var(--color-text-primary)',
-                      fontFamily: 'monospace',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {generatedUrl}
-                  </code>
-                  <button
-                    onClick={() => handleCopy(generatedUrl, 'generated')}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: '13px',
-                      fontWeight: '500',
-                      background: copiedId === 'generated' ? 'var(--color-success-bg)' : 'var(--color-brand-accent)',
-                      color: copiedId === 'generated' ? '#2E7D32' : 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px',
-                      flexShrink: 0,
-                      transition: 'all 0.15s ease',
+                      gap: '8px',
+                      background: 'var(--color-bg-app)',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: '6px',
+                      padding: '10px 14px',
                     }}
                   >
-                    {copiedId === 'generated' ? <CheckCircle2 size={13} /> : <Copy size={13} />}
-                    {copiedId === 'generated' ? 'Copied!' : 'Copy Link'}
+                    <code
+                      style={{
+                        flex: 1,
+                        fontSize: '13px',
+                        color: 'var(--color-text-primary)',
+                        fontFamily: 'monospace',
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {generatedUrl}
+                    </code>
+                    <button
+                      onClick={() => handleCopy(generatedUrl || '', 'generated')}
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        background: copiedId === 'generated' ? 'var(--color-success-bg)' : 'var(--color-brand-accent)',
+                        color: copiedId === 'generated' ? '#2E7D32' : 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        flexShrink: 0,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {copiedId === 'generated' ? <CheckCircle2 size={13} /> : <Copy size={13} />}
+                      {copiedId === 'generated' ? 'Copied!' : 'Copy Link'}
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                  <button className="btn-secondary" onClick={handleCloseDialog}>
+                    Close
+                  </button>
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setGeneratedUrl(null)
+                      setGenDialogStep('form')
+                      setSelectedTeam('')
+                      setCustomTeam('')
+                      setTargetSeats(10)
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <Plus size={14} />
+                    Generate Another
                   </button>
                 </div>
               </div>
-
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                <button className="btn-secondary" onClick={handleCloseDialog}>
-                  Close
-                </button>
-                <button
-                  className="btn-primary"
-                  onClick={() => {
-                    setGeneratedUrl(null)
-                    setOrgName('')
-                    setSelectedTeam('')
-                    setCustomTeam('')
-                    setTargetSeats(10)
-                  }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <Plus size={14} />
-                  Generate Another
-                </button>
-              </div>
-            </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
