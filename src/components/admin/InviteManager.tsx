@@ -222,9 +222,27 @@ export function InviteManager() {
 
   // ─── Copy to clipboard ────────────────────────────────────────────────────
 
+  const getCleanUrl = (url: string) => {
+    if (!url) return ''
+    try {
+      const parsed = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+      const origin = (typeof window !== 'undefined' ? window.location.origin : parsed.origin) || parsed.origin
+      const search = parsed.search
+      return `${origin}/eval/invite${search}`
+    } catch {
+      if (url.includes('/eval/invite')) {
+        const idx = url.indexOf('/eval/invite')
+        const origin = typeof window !== 'undefined' ? window.location.origin : ''
+        return `${origin}${url.substring(idx)}`
+      }
+      return url
+    }
+  }
+
   const handleCopy = async (url: string, id: string) => {
     try {
-      await navigator.clipboard.writeText(url)
+      const cleanUrl = getCleanUrl(url)
+      await navigator.clipboard.writeText(cleanUrl)
       setCopiedId(id)
       toast.success('Magic link copied to clipboard!', {
         description: 'Share this link with your team members.',
@@ -259,7 +277,7 @@ export function InviteManager() {
       const data = await res.json()
 
       if (data.url) {
-        setGeneratedUrl(data.url)
+        setGeneratedUrl(getCleanUrl(data.url))
         setGenDialogStep('success')
         await fetchInvites()
         localStorage.setItem('tai_onboarding_completed', 'true')
@@ -609,7 +627,7 @@ export function InviteManager() {
                         <button
                           onClick={() => {
                             if (invite.invite_url) {
-                              window.open(invite.invite_url, '_blank', 'noopener,noreferrer')
+                              window.open(getCleanUrl(invite.invite_url), '_blank', 'noopener,noreferrer')
                             }
                           }}
                           style={{
