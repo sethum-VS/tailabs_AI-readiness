@@ -371,7 +371,7 @@ export default function LoginPage() {
               </label>
               <button
                 type="button"
-                onClick={handleForgotPassword}
+                onClick={() => window.location.reload()}
                 className="forgot-link"
               >
                 Forgot password?
