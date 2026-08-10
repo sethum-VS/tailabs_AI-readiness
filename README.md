@@ -6,7 +6,7 @@
 ![Supabase](https://img.shields.io/badge/Database-Supabase-emerald.svg)
 
 <img src="https://github.com/sethum-VS/myGIF/blob/main/Tailabs.gif" width="auto" height="auto" alt="TAI Labs Enterprise AI Readiness Platform** is a data-driven benchmarking and workforce intelligence platform">
-The **TAI Labs Enterprise AI Readiness Platform** is a data-driven benchmarking and workforce intelligence platform. It enables organizations to measure AI adoption maturity, identify multi-department capability gaps, and deliver tailored upskilling pathways across core operational and engineering competencies.
+The TAI Labs Enterprise AI Readiness Platform is a data-driven benchmarking and workforce intelligence platform. It enables organizations to measure AI adoption maturity, identify multi-department capability gaps, and deliver tailored upskilling pathways across core operational and engineering competencies.
 
 ---
 
