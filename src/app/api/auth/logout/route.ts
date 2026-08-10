@@ -5,14 +5,25 @@ export async function POST(request: NextRequest) {
   try {
     const orgId = request.cookies.get('tai_guest_id')?.value
 
-    if (orgId) {
+    const DEMO_ORG_ID = '00000000-0000-4000-a000-000000000000'
+
+    if (orgId && orgId !== DEMO_ORG_ID) {
       const supabase = createAdminClient()
 
-      // Delete org — cascades all teams, invites, and responses
-      await supabase
+      // Check if org is demo by guest_id as an extra safety check
+      const { data: org } = await supabase
         .from('organizations')
-        .delete()
+        .select('guest_id')
         .eq('id', orgId)
+        .maybeSingle() as unknown as { data: { guest_id: string | null } | null }
+
+      if (!org || org.guest_id !== 'demo') {
+        // Delete guest org — cascades all teams, invites, and responses
+        await supabase
+          .from('organizations')
+          .delete()
+          .eq('id', orgId)
+      }
     }
 
     // Clear the session cookie
