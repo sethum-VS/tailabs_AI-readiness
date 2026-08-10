@@ -75,7 +75,10 @@ export async function POST(request: NextRequest) {
 
     // Generate invite
     const token = nanoid(64)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host')
+    const proto = request.headers.get('x-forwarded-proto') || 'https'
+    const fallbackUrl = host ? `${proto}://${host}` : 'http://localhost:3000'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || fallbackUrl
 
     const { data: invite, error: inviteError } = await supabase
       .from('assessment_invites')
