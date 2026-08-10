@@ -79,11 +79,11 @@ export function TokenValidator({ token, onValid, onInvalid }: TokenValidatorProp
       border: 'rgba(255, 115, 0, 0.2)',
     },
     expired: {
-      icon: <Clock size={32} color="var(--color-warning)" />,
-      title: 'Link Has Expired',
-      description: 'This assessment link expired 14 days after it was generated. Please request a new link from your administrator.',
-      bg: 'rgba(255, 152, 0, 0.06)',
-      border: 'rgba(255, 152, 0, 0.2)',
+      icon: <Clock size={32} color="#E65100" />,
+      title: errorMessage?.toLowerCase().includes('complete') ? 'Assessment Completed' : 'Assessment Link Expired',
+      description: errorMessage || 'This assessment link has reached its maximum response limit or has expired. Please request a new link from your administrator.',
+      bg: 'rgba(255, 152, 0, 0.08)',
+      border: 'rgba(255, 152, 0, 0.25)',
     },
     invalid: {
       icon: <ShieldX size={32} color="var(--color-danger)" />,

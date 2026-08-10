@@ -94,8 +94,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 404 })
     }
 
-    if (new Date(invite.expires_at) < new Date()) {
-      return NextResponse.json({ error: 'Token has expired' }, { status: 410 })
+    if (new Date(invite.expires_at) < new Date() || invite.status === 'expired' || invite.status === 'completed') {
+      return NextResponse.json({ error: 'This assessment link has expired.' }, { status: 410 })
     }
 
     if (invite.team_id !== team_id) {
@@ -116,9 +116,15 @@ export async function POST(request: NextRequest) {
         .eq('team_id', team_id)
 
       if (existingCount !== null && existingCount >= teamData.target_seats) {
+        if (invite_id) {
+          await supabase
+            .from('assessment_invites')
+            .update({ status: 'completed' } as never)
+            .eq('id', invite_id)
+        }
         return NextResponse.json(
-          { error: `This team has reached its maximum of ${teamData.target_seats} responses` },
-          { status: 409 }
+          { error: `This assessment link has reached its maximum limit of ${teamData.target_seats} response(s) and is now complete.` },
+          { status: 410 }
         )
       }
     }

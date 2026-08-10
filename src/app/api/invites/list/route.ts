@@ -101,10 +101,10 @@ export async function GET(request: NextRequest) {
 
       let computedStatus: 'pending' | 'active' | 'completed' | 'expired' = invite.status
 
-      if (new Date(invite.expires_at) < new Date() && responseCount < targetSeats) {
-        computedStatus = 'expired'
-      } else if (responseCount >= targetSeats) {
+      if (responseCount >= targetSeats) {
         computedStatus = 'completed'
+      } else if (new Date(invite.expires_at) < new Date()) {
+        computedStatus = 'expired'
       } else if (responseCount > 0) {
         computedStatus = 'active'
       } else {

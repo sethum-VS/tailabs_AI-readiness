@@ -301,6 +301,14 @@ textarea {
   font-weight: 500;
   padding: 4px 10px;
 }
+.badge-expired {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #D32F2F;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+}
 
 /* Table */
 .oxygen-table th {

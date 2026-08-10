@@ -9,16 +9,12 @@ function AssessmentEntryContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token') ?? ''
   const [tokenContext, setTokenContext] = useState<TokenContext | null>(null)
-  const [validationFailed, setValidationFailed] = useState(false)
-
-  if (validationFailed) return null // TokenValidator renders its own error UI
 
   if (!tokenContext) {
     return (
       <TokenValidator
         token={token}
         onValid={(ctx) => setTokenContext(ctx)}
-        onInvalid={() => setValidationFailed(true)}
       />
     )
   }
