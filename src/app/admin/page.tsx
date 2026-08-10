@@ -486,6 +486,7 @@ export default function AdminDashboard() {
                 {/* Action Matrix */}
                 <ActionMatrix
                   recommendations={data?.recommendations ?? []}
+                  teams={data?.teams ?? []}
                   loading={loading}
                 />
               </div>
