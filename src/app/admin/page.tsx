@@ -541,7 +541,7 @@ export default function AdminDashboard() {
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '680px' }}>
+          <div className="settings-container">
             {/* Organization Profile */}
             <div id="org-name-setting" className="oxygen-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
@@ -561,7 +561,7 @@ export default function AdminDashboard() {
                   <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
                     Organization Name
                   </label>
-                  <div style={{ display: 'flex', gap: '10px' }}>
+                  <div className="settings-input-group">
                     <input
                       type="text"
                       value={settingsOrgName}
@@ -612,7 +612,7 @@ export default function AdminDashboard() {
                 </h2>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="settings-row">
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
                       Default Team Seat Target
@@ -624,7 +624,7 @@ export default function AdminDashboard() {
                   <select
                     value={settingsSeatTarget}
                     style={{
-                      height: '38px',
+                      height: '40px',
                       padding: '0 12px',
                       border: '1px solid var(--color-border)',
                       borderRadius: '6px',
@@ -644,7 +644,7 @@ export default function AdminDashboard() {
 
                 <div style={{ height: '1px', background: 'var(--color-border)' }} />
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="settings-row">
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
                       Assessment Link Validity Window
@@ -656,7 +656,7 @@ export default function AdminDashboard() {
                   <select
                     value={settingsLinkValidity}
                     style={{
-                      height: '38px',
+                      height: '40px',
                       padding: '0 12px',
                       border: '1px solid var(--color-border)',
                       borderRadius: '6px',
@@ -693,11 +693,14 @@ export default function AdminDashboard() {
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
+                className="mobile-full-width"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '8px',
-                  padding: '10px 20px',
+                  padding: '12px 20px',
+                  minHeight: '44px',
                   background: loggingOut ? 'rgba(244,67,54,0.4)' : 'rgba(244,67,54,0.08)',
                   border: '1px solid rgba(244,67,54,0.3)',
                   borderRadius: '8px',

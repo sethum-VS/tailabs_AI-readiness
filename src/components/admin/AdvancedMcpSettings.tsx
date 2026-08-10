@@ -153,7 +153,7 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
 
   return (
     <div
-      id="advanced-mcp-settings"
+      id="mcp-telemetry-setting"
       className="oxygen-card"
       style={{
         display: 'flex',
@@ -165,7 +165,7 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="settings-card-header">
         <button
           onClick={() => setIsExpanded((prev) => !prev)}
           style={{
@@ -179,6 +179,7 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
             textAlign: 'left',
             color: 'inherit',
             flex: 1,
+            minWidth: '240px',
           }}
         >
           <div
@@ -207,17 +208,19 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
           </div>
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }} className="mobile-full-width">
           {isExpanded && (
             <button
               onClick={() => handleSyncNow('all')}
               disabled={syncingProvider !== null || loading}
-              className="btn-primary"
+              className="btn-primary mobile-full-width"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '8px',
                 padding: '8px 16px',
+                minHeight: '40px',
                 fontSize: '13px',
                 fontWeight: '600',
                 cursor: syncingProvider !== null ? 'not-allowed' : 'pointer',
@@ -231,12 +234,14 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
           <button
             onClick={() => setIsExpanded((prev) => !prev)}
             aria-label={isExpanded ? 'Collapse section' : 'Expand section'}
+            className="mobile-full-width"
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
               padding: '8px 14px',
+              minHeight: '40px',
               fontSize: '13px',
               fontWeight: '600',
               color: 'var(--color-text-primary)',
@@ -400,14 +405,14 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+          <div className="settings-row" style={{ marginTop: '4px' }}>
             <button
               onClick={() => handleSaveConfig('slack')}
               disabled={savingProvider === 'slack'}
+              className="mobile-full-width"
               style={{
                 flex: 1,
-                height: '36px',
-                minHeight: '36px',
+                minHeight: '40px',
                 padding: '0 12px',
                 fontSize: '12px',
                 fontWeight: '600',
@@ -424,10 +429,10 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
             <button
               onClick={() => handleSyncNow('slack')}
               disabled={syncingProvider === 'slack'}
+              className="mobile-full-width"
               style={{
                 flex: 1,
-                height: '36px',
-                minHeight: '36px',
+                minHeight: '40px',
                 padding: '0 12px',
                 fontSize: '12px',
                 fontWeight: '600',
@@ -558,14 +563,14 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+          <div className="settings-row" style={{ marginTop: '4px' }}>
             <button
               onClick={() => handleSaveConfig('jira')}
               disabled={savingProvider === 'jira'}
+              className="mobile-full-width"
               style={{
                 flex: 1,
-                height: '36px',
-                minHeight: '36px',
+                minHeight: '40px',
                 padding: '0 12px',
                 fontSize: '12px',
                 fontWeight: '600',
@@ -582,10 +587,10 @@ export function AdvancedMcpSettings({ onSyncSuccess }: AdvancedMcpSettingsProps)
             <button
               onClick={() => handleSyncNow('jira')}
               disabled={syncingProvider === 'jira'}
+              className="mobile-full-width"
               style={{
                 flex: 1,
-                height: '36px',
-                minHeight: '36px',
+                minHeight: '40px',
                 padding: '0 12px',
                 fontSize: '12px',
                 fontWeight: '600',

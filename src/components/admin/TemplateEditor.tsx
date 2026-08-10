@@ -490,13 +490,9 @@ export function TemplateEditor() {
       {/* Header Title (Clickable to collapse/expand) */}
       <div
         onClick={() => setIsCardCollapsed(!isCardCollapsed)}
+        className="settings-card-header"
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
           marginBottom: isCardCollapsed ? '0px' : '20px',
-          flexWrap: 'wrap',
-          gap: '12px',
           cursor: 'pointer',
           userSelect: 'none',
         }}
@@ -514,7 +510,7 @@ export function TemplateEditor() {
         </div>
 
         {/* Status Badge & Toggle Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <span
             style={{
               fontSize: '12px',
@@ -553,6 +549,7 @@ export function TemplateEditor() {
               color: 'var(--color-text-secondary)',
               fontSize: '12px',
               fontWeight: '600',
+              minHeight: '36px',
             }}
           >
             {isCardCollapsed ? (
@@ -574,9 +571,8 @@ export function TemplateEditor() {
 
       {/* Tabs */}
       <div
+        className="touch-scroll-x"
         style={{
-          display: 'flex',
-          gap: '8px',
           borderBottom: '1px solid var(--color-border)',
           paddingBottom: '12px',
           marginBottom: '24px',
@@ -598,6 +594,9 @@ export function TemplateEditor() {
             alignItems: 'center',
             gap: '6px',
             transition: 'all 0.2s ease',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            minHeight: '40px',
           }}
         >
           <Code2 size={15} />
@@ -619,6 +618,9 @@ export function TemplateEditor() {
             alignItems: 'center',
             gap: '6px',
             transition: 'all 0.2s ease',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            minHeight: '40px',
           }}
         >
           <Layers size={15} />
@@ -638,7 +640,7 @@ export function TemplateEditor() {
           {/* Section 1: General & Business Baseline Questions (Likert 1-4) */}
           {activeDepartment === 'General' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div className="settings-row" style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <HelpCircle size={18} color="var(--color-brand-accent)" />
                   <h3 style={{ fontSize: '15px', fontWeight: '600', margin: 0, color: 'var(--color-text-primary)' }}>
@@ -649,7 +651,7 @@ export function TemplateEditor() {
                   type="button"
                   onClick={handleAddPillar}
                   className="btn-secondary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '6px 12px' }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', padding: '8px 14px', minHeight: '40px' }}
                 >
                   <Plus size={14} /> Add Question Dimension
                 </button>
@@ -681,7 +683,7 @@ export function TemplateEditor() {
                             border: 'none',
                             color: 'var(--color-danger)',
                             cursor: payload.pillars.length <= 1 ? 'not-allowed' : 'pointer',
-                            padding: '2px 4px',
+                            padding: '4px',
                             display: 'flex',
                             alignItems: 'center',
                             opacity: payload.pillars.length <= 1 ? 0.4 : 0.8,
@@ -717,7 +719,7 @@ export function TemplateEditor() {
 
                       <div>
                         <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>
-                          Helper Subtext
+                          Helper / Context Subtitle
                         </label>
                         <input
                           type="text"
@@ -729,8 +731,8 @@ export function TemplateEditor() {
                             borderRadius: '6px',
                             border: '1px solid var(--color-border)',
                             background: 'var(--color-bg-card)',
-                            color: 'var(--color-text-primary)',
-                            fontSize: '13px',
+                            color: 'var(--color-text-secondary)',
+                            fontSize: '12px',
                           }}
                         />
                       </div>
@@ -744,20 +746,19 @@ export function TemplateEditor() {
           {/* Section 2: Technical Scenario Prompts & Scoring Vectors (Only for Engineering) */}
           {activeDepartment === 'Engineering' && (
             <div>
-              {/* Header with Add New Scenario and Add Scenario Step controls */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div className="settings-row" style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Cpu size={18} color="var(--color-brand-accent)" />
                   <h3 style={{ fontSize: '15px', fontWeight: '600', margin: 0, color: 'var(--color-text-primary)' }}>
                     Engineering Technical Scenarios & Vector Scoring Weights
                   </h3>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     onClick={handleAddScenario}
                     className="btn-secondary"
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '6px 12px' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '8px 14px', minHeight: '40px' }}
                   >
                     <Plus size={14} /> Add New Scenario
                   </button>
@@ -766,7 +767,7 @@ export function TemplateEditor() {
                       type="button"
                       onClick={handleAddStep}
                       className="btn-secondary"
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '6px 12px' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '8px 14px', minHeight: '40px' }}
                     >
                       <Plus size={14} /> Add Scenario Step
                     </button>
@@ -783,9 +784,9 @@ export function TemplateEditor() {
 
                 return (
                   <div>
-                    {/* Scenario Switcher Tabs */}
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center', background: 'var(--color-bg-subtle, rgba(255,255,255,0.02))', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-text-secondary)', marginRight: '4px' }}>
+                    {/* Scenario Switcher Touch Tabs */}
+                    <div className="touch-scroll-x" style={{ marginBottom: '20px', alignItems: 'center', background: 'var(--color-bg-subtle, rgba(255,255,255,0.02))', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-text-secondary)', marginRight: '4px', flexShrink: 0 }}>
                         Scenarios ({scenariosList.length}):
                       </span>
                       {scenariosList.map((sc, sIdx) => {
@@ -798,7 +799,7 @@ export function TemplateEditor() {
                               display: 'flex',
                               alignItems: 'center',
                               gap: '8px',
-                              padding: '6px 12px',
+                              padding: '8px 14px',
                               borderRadius: '6px',
                               fontSize: '12px',
                               fontWeight: '600',
@@ -808,9 +809,12 @@ export function TemplateEditor() {
                               cursor: 'pointer',
                               transition: 'all 0.15s ease',
                               userSelect: 'none',
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
+                              minHeight: '38px',
                             }}
                           >
-                            <span>Scenario {sIdx + 1}: {sc.title.length > 26 ? sc.title.slice(0, 26) + '...' : sc.title}</span>
+                            <span>Scenario {sIdx + 1}: {sc.title.length > 22 ? sc.title.slice(0, 22) + '...' : sc.title}</span>
                             {scenariosList.length > 1 && (
                               <button
                                 type="button"
@@ -865,7 +869,7 @@ export function TemplateEditor() {
                           type="button"
                           onClick={() => handleDeleteScenario(curIdx)}
                           className="btn-secondary"
-                          style={{ color: 'var(--color-danger)', borderColor: 'rgba(244, 67, 54, 0.3)', padding: '8px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                          style={{ color: 'var(--color-danger)', borderColor: 'rgba(244, 67, 54, 0.3)', padding: '8px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', minHeight: '40px' }}
                         >
                           <Trash2 size={14} /> Delete Scenario
                         </button>
@@ -1015,7 +1019,7 @@ export function TemplateEditor() {
                                       type="button"
                                       onClick={() => handleAddOption(stepIdx)}
                                       className="btn-secondary"
-                                      style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', padding: '4px 8px' }}
+                                      style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', padding: '6px 10px', minHeight: '34px' }}
                                     >
                                       <Plus size={13} /> Add Option
                                     </button>
@@ -1045,7 +1049,7 @@ export function TemplateEditor() {
                                               border: 'none',
                                               color: 'var(--color-danger)',
                                               cursor: node.options.length <= 2 ? 'not-allowed' : 'pointer',
-                                              padding: '2px 4px',
+                                              padding: '4px',
                                               display: 'flex',
                                               alignItems: 'center',
                                               opacity: node.options.length <= 2 ? 0.4 : 0.8,
@@ -1064,7 +1068,7 @@ export function TemplateEditor() {
                                             onChange={(e) => handleOptionFieldChange(stepIdx, optIdx, 'text', e.target.value)}
                                             style={{
                                               width: '100%',
-                                              padding: '6px 10px',
+                                              padding: '8px 10px',
                                               borderRadius: '6px',
                                               border: '1px solid var(--color-border)',
                                               background: 'var(--color-bg-card)',
@@ -1080,7 +1084,7 @@ export function TemplateEditor() {
                                             onChange={(e) => handleOptionFieldChange(stepIdx, optIdx, 'next_context', e.target.value)}
                                             style={{
                                               width: '100%',
-                                              padding: '6px 10px',
+                                              padding: '8px 10px',
                                               borderRadius: '6px',
                                               border: '1px solid var(--color-border)',
                                               background: 'var(--color-bg-card)',
@@ -1091,10 +1095,10 @@ export function TemplateEditor() {
 
                                           {/* Vector Score Weights Grid */}
                                           <div style={{ marginTop: '6px' }}>
-                                            <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>
+                                            <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
                                               Scoring Vector Weights (0 = None, 1 = Moderate, 2 = High)
                                             </span>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px' }}>
+                                            <div className="vector-grid">
                                               {VECTOR_KEYS.map(({ key, label }) => {
                                                 const currentWeight = opt.vectors[key] ?? 0
                                                 return (
@@ -1106,20 +1110,22 @@ export function TemplateEditor() {
                                                       alignItems: 'center',
                                                       background: 'var(--color-bg-card)',
                                                       border: '1px solid var(--color-border)',
-                                                      borderRadius: '4px',
-                                                      padding: '4px 8px',
+                                                      borderRadius: '6px',
+                                                      padding: '6px 10px',
+                                                      minHeight: '36px',
                                                     }}
                                                   >
-                                                    <span style={{ fontSize: '11px', color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }} title={label}>
+                                                    <span style={{ fontSize: '11px', color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px' }} title={label}>
                                                       {label}
                                                     </span>
                                                     <select
                                                       value={currentWeight}
                                                       onChange={(e) => handleVectorScoreChange(stepIdx, optIdx, key, Number(e.target.value))}
                                                       style={{
-                                                        fontSize: '11px',
+                                                        fontSize: '12px',
                                                         fontWeight: '700',
-                                                        padding: '2px 4px',
+                                                        padding: '2px 6px',
+                                                        minHeight: '28px',
                                                         borderRadius: '4px',
                                                         border: '1px solid var(--color-border)',
                                                         background: 'var(--color-bg-app)',
@@ -1155,10 +1161,8 @@ export function TemplateEditor() {
 
           {/* Action Bar */}
           <div
+            className="settings-row"
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
               paddingTop: '16px',
               borderTop: '1px solid var(--color-border)',
             }}
@@ -1167,12 +1171,15 @@ export function TemplateEditor() {
               type="button"
               onClick={handleReset}
               disabled={resetting || saving}
-              className="btn-secondary"
+              className="btn-secondary mobile-full-width"
               style={{
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 fontSize: '13px',
+                padding: '10px 16px',
+                minHeight: '44px',
                 color: 'var(--color-danger)',
                 borderColor: 'rgba(244, 67, 54, 0.3)',
               }}
@@ -1185,14 +1192,15 @@ export function TemplateEditor() {
               type="button"
               onClick={handleSave}
               disabled={saving || resetting}
-              className="btn-primary"
+              className="btn-primary mobile-full-width"
               style={{
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 fontSize: '13px',
-                padding: '0 20px',
-                minHeight: '40px',
+                padding: '10px 20px',
+                minHeight: '44px',
               }}
             >
               <Save size={15} />

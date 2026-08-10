@@ -188,7 +188,7 @@ export default function LoginPage() {
           {/* Mobile Logo Header */}
           <div className="mobile-logo-header">
             <Image
-              src="/images/logos/tai-horizontal-primary-converted.png"
+              src="/images/logos/tai-horizontal-primary.png"
               alt="TAI Labs Logo"
               width={140}
               height={38}
