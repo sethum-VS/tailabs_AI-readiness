@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { getAuthOrgId } from '@/lib/apiUtils'
+import { getAuthOrgId, getAppBaseUrl, normalizeInviteUrl } from '@/lib/apiUtils'
 
 interface InviteWithRelations {
   id: string
@@ -14,7 +14,7 @@ interface InviteWithRelations {
   teams: {
     id: string
     name: string
-    target_seats: number
+    target_seats: number | null
     aggregate_score: number
     organization_id: string
     organizations: {
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const appUrl = getAppBaseUrl(request)
     const statusUpdatePromises: Array<Promise<unknown>> = []
 
     const enriched = invites.map((invite) => {
@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
         id: invite.id,
         token: invite.token,
         masked_token: `${invite.token.slice(0, 8)}...${invite.token.slice(-6)}`,
-        invite_url: `${appUrl}/eval/invite?token=${invite.token}${scenarioQueryParam}`,
+        invite_url: normalizeInviteUrl(`${appUrl}/eval/invite?token=${invite.token}${scenarioQueryParam}`),
         title: invite.title,
         status: computedStatus,
         created_at: invite.created_at,

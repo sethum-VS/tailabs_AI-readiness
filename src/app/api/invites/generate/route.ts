@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { nanoid } from 'nanoid'
-import { getAuthOrgId } from '@/lib/apiUtils'
+import { getAuthOrgId, getAppBaseUrl, normalizeInviteUrl } from '@/lib/apiUtils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,10 +76,7 @@ export async function POST(request: NextRequest) {
 
     // Generate invite
     const token = nanoid(64)
-    const host = request.headers.get('x-forwarded-host') || request.headers.get('host')
-    const proto = request.headers.get('x-forwarded-proto') || 'https'
-    const fallbackUrl = host ? `${proto}://${host}` : 'http://localhost:3000'
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || fallbackUrl
+    const appUrl = getAppBaseUrl(request)
 
     const scenarioQueryParam = selected_scenario_id && selected_scenario_id !== 'all'
       ? `&scenario=${encodeURIComponent(selected_scenario_id)}`
@@ -124,11 +121,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create invite' }, { status: 500 })
     }
 
+    const generatedInviteUrl = normalizeInviteUrl(`${appUrl}/eval/invite?token=${invite.token}${scenarioQueryParam}`)
+
     return NextResponse.json({
       success: true,
       invite_id: invite.id,
       token: invite.token,
-      url: `${appUrl}/eval/invite?token=${invite.token}${scenarioQueryParam}`,
+      url: generatedInviteUrl,
     })
   } catch (err) {
     console.error('Generate invite error:', err)
