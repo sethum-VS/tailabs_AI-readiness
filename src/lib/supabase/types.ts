@@ -97,6 +97,7 @@ export type Database = {
           token: string
           title: string
           status: 'pending' | 'active' | 'completed' | 'expired'
+          selected_scenario_id?: string | null
           created_at: string
           expires_at: string
         }
@@ -106,6 +107,7 @@ export type Database = {
           token: string
           title?: string
           status?: 'pending' | 'active' | 'completed' | 'expired'
+          selected_scenario_id?: string | null
           created_at?: string
           expires_at?: string
         }
@@ -115,6 +117,7 @@ export type Database = {
           token?: string
           title?: string
           status?: 'pending' | 'active' | 'completed' | 'expired'
+          selected_scenario_id?: string | null
           created_at?: string
           expires_at?: string
         }
@@ -214,6 +217,32 @@ export type Database = {
           description?: string
           action_label?: string
           action_url?: string | null
+        }
+      }
+      assessment_templates: {
+        Row: {
+          id: string
+          organization_id: string
+          department_type: string
+          schema_payload: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          department_type?: string
+          schema_payload: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          department_type?: string
+          schema_payload?: Json
+          created_at?: string
+          updated_at?: string
         }
       }
     }
