@@ -12,6 +12,7 @@ import { TeamDisparityChart } from '@/components/admin/TeamDisparityChart'
 import { ActionMatrix } from '@/components/admin/ActionMatrix'
 import { DashboardSkeleton } from '@/components/admin/DashboardSkeleton'
 import { DepartmentBreakdownCard } from '@/components/admin/DepartmentBreakdownCard'
+import { OnboardingTour, RestartTourButton } from '@/components/admin/OnboardingTour'
 import type { Recommendation } from '@/lib/scoringEngine'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -30,6 +31,8 @@ interface DashboardData {
   has_data: boolean
   org_score: number
   org_name: string
+  default_seat_target?: number
+  link_validity_days?: number
   teams: TeamData[]
   recommendations: Recommendation[]
   total_responses: number
@@ -80,6 +83,7 @@ function AdminEmptyState() {
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
         <Link href="/admin/distribution" style={{ textDecoration: 'none' }}>
           <button
+            id="generate-first-link-btn"
             className="btn-primary"
             style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', padding: '12px 24px' }}
           >
@@ -173,6 +177,89 @@ export default function AdminDashboard() {
     fetchDashboard()
   }, [fetchDashboard])
 
+  // ─── Settings State & Handlers ─────────────────────────────────────────────
+  const [settingsOrgName, setSettingsOrgName] = useState('')
+  const [settingsSeatTarget, setSettingsSeatTarget] = useState(10)
+  const [settingsLinkValidity, setSettingsLinkValidity] = useState(30)
+  const [savingOrg, setSavingOrg] = useState(false)
+
+  useEffect(() => {
+    if (data) {
+      setSettingsOrgName(data.org_name || '')
+      if (typeof data.default_seat_target === 'number') {
+        setSettingsSeatTarget(data.default_seat_target)
+      }
+      if (typeof data.link_validity_days === 'number') {
+        setSettingsLinkValidity(data.link_validity_days)
+      }
+    }
+  }, [data])
+
+  async function handleSaveOrgName() {
+    if (!settingsOrgName.trim()) {
+      toast.error('Organization name cannot be empty')
+      return
+    }
+    setSavingOrg(true)
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ org_name: settingsOrgName.trim() }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Failed to update organization name')
+      }
+      toast.success('Organization settings updated', {
+        description: 'Organization name saved successfully.',
+      })
+      setData((prev) => (prev ? { ...prev, org_name: json.settings.org_name } : prev))
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update organization name')
+    } finally {
+      setSavingOrg(false)
+    }
+  }
+
+  async function handleSaveSeatTarget(newTarget: number) {
+    setSettingsSeatTarget(newTarget)
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ default_seat_target: newTarget }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Failed to update default seat target')
+      }
+      toast.success('Default seat target updated')
+      setData((prev) => (prev ? { ...prev, default_seat_target: json.settings.default_seat_target } : prev))
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update default seat target')
+    }
+  }
+
+  async function handleSaveLinkValidity(newValidity: number) {
+    setSettingsLinkValidity(newValidity)
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link_validity_days: newValidity }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Failed to update link validity window')
+      }
+      toast.success('Link validity window updated')
+      setData((prev) => (prev ? { ...prev, link_validity_days: json.settings.link_validity_days } : prev))
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update link validity window')
+    }
+  }
+
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'departments', label: 'Departments', icon: BarChart2 },
@@ -260,27 +347,30 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          {/* Refresh */}
-          <button
-            onClick={fetchDashboard}
-            disabled={loading}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 12px',
-              fontSize: '13px',
-              color: 'var(--color-text-secondary)',
-              background: 'transparent',
-              border: '1px solid var(--color-border)',
-              borderRadius: '6px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              flexShrink: 0,
-            }}
-          >
-            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-            <span className="hide-mobile">Refresh</span>
-          </button>
+          {/* Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <RestartTourButton />
+            <button
+              onClick={fetchDashboard}
+              disabled={loading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                fontSize: '13px',
+                color: 'var(--color-text-secondary)',
+                background: 'transparent',
+                border: '1px solid var(--color-border)',
+                borderRadius: '6px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+              <span className="hide-mobile">Refresh</span>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -436,14 +526,20 @@ export default function AdminDashboard() {
         {activeTab === 'settings' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '680px' }}>
             {/* Organization Profile */}
-            <div className="oxygen-card">
+            <div id="org-name-setting" className="oxygen-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <Building2 size={20} color="var(--color-brand-accent)" />
                 <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0, color: 'var(--color-text-primary)' }}>
                   Organization Profile
                 </h2>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSaveOrgName()
+                }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+              >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
                     Organization Name
@@ -451,8 +547,21 @@ export default function AdminDashboard() {
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <input
                       type="text"
-                      defaultValue={data?.org_name || 'Enterprise Organization'}
+                      value={settingsOrgName}
+                      onChange={(e) => setSettingsOrgName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          handleSaveOrgName()
+                        }
+                      }}
+                      onBlur={() => {
+                        if (settingsOrgName.trim() && settingsOrgName.trim() !== (data?.org_name || '')) {
+                          handleSaveOrgName()
+                        }
+                      }}
                       className="text-input"
+                      placeholder="My Organization"
                       style={{
                         flex: 1,
                         height: '42px',
@@ -465,23 +574,20 @@ export default function AdminDashboard() {
                       }}
                     />
                     <button
+                      type="submit"
                       className="btn-primary"
-                      style={{ padding: '0 18px', fontSize: '13px', minHeight: '42px' }}
-                      onClick={() => {
-                        toast.success('Organization settings updated', {
-                          description: 'Organization name saved successfully.',
-                        })
-                      }}
+                      disabled={savingOrg}
+                      style={{ padding: '0 18px', fontSize: '13px', minHeight: '42px', opacity: savingOrg ? 0.7 : 1 }}
                     >
-                      Save Changes
+                      {savingOrg ? 'Saving...' : 'Save Changes'}
                     </button>
                   </div>
                 </div>
-              </div>
+              </form>
             </div>
 
             {/* Assessment Preferences */}
-            <div className="oxygen-card">
+            <div id="assessment-config-setting" className="oxygen-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <Settings size={20} color="var(--color-brand-accent)" />
                 <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0, color: 'var(--color-text-primary)' }}>
@@ -499,7 +605,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <select
-                    defaultValue="10"
+                    value={settingsSeatTarget}
                     style={{
                       height: '38px',
                       padding: '0 12px',
@@ -510,14 +616,12 @@ export default function AdminDashboard() {
                       background: 'var(--color-bg-card)',
                       cursor: 'pointer',
                     }}
-                    onChange={() => {
-                      toast.success('Default seat target updated')
-                    }}
+                    onChange={(e) => handleSaveSeatTarget(Number(e.target.value))}
                   >
-                    <option value="5">5 Seats</option>
-                    <option value="10">10 Seats</option>
-                    <option value="25">25 Seats</option>
-                    <option value="50">50 Seats</option>
+                    <option value={5}>5 Seats</option>
+                    <option value={10}>10 Seats</option>
+                    <option value={25}>25 Seats</option>
+                    <option value={50}>50 Seats</option>
                   </select>
                 </div>
 
@@ -533,7 +637,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <select
-                    defaultValue="30"
+                    value={settingsLinkValidity}
                     style={{
                       height: '38px',
                       padding: '0 12px',
@@ -544,14 +648,12 @@ export default function AdminDashboard() {
                       background: 'var(--color-bg-card)',
                       cursor: 'pointer',
                     }}
-                    onChange={() => {
-                      toast.success('Link validity window updated')
-                    }}
+                    onChange={(e) => handleSaveLinkValidity(Number(e.target.value))}
                   >
-                    <option value="7">7 Days</option>
-                    <option value="14">14 Days</option>
-                    <option value="30">30 Days</option>
-                    <option value="60">60 Days</option>
+                    <option value={7}>7 Days</option>
+                    <option value={14}>14 Days</option>
+                    <option value={30}>30 Days</option>
+                    <option value={60}>60 Days</option>
                   </select>
                 </div>
               </div>
@@ -631,6 +733,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        <OnboardingTour activeTab={activeTab} onSelectTab={setActiveTab} />
       </main>
     </div>
   )
