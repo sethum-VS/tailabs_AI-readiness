@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { nanoid } from 'nanoid'
+import { getAuthOrgId } from '@/lib/apiUtils'
 
 export async function POST(request: NextRequest) {
   try {
-    // Org ID is injected by middleware from the tai_guest_id cookie
-    const orgId = request.headers.get('x-tai-org-id')
-
-    if (!orgId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = getAuthOrgId(request)
+    if ('errorResponse' in auth) {
+      return auth.errorResponse
     }
+    const { orgId } = auth
 
     const body = await request.json()
     const { team_name, target_seats = 10, selected_scenario_id } = body as {

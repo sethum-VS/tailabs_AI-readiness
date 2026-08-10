@@ -336,6 +336,10 @@ export function QuestionnaireWizard({ tokenContext, token }: QuestionnaireWizard
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (step !== 'question') return
+      const target = e.target as HTMLElement | null
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return
+      }
       
       if (isTechRole) {
         if (e.key === 'Enter' && techSelection !== undefined) {
