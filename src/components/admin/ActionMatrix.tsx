@@ -1,19 +1,26 @@
 'use client'
 
-import { toast } from 'sonner'
+import { useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PILLAR_LABELS, STATUS_COLORS, getScoreStatus } from '@/lib/scoringEngine'
 import type { Recommendation } from '@/lib/scoringEngine'
-import { ExternalLink, BookOpen, Sparkles, CheckCircle2 } from 'lucide-react'
+import { BookOpen, Sparkles, CheckCircle2, Users } from 'lucide-react'
 import { PillarIcon } from '@/components/common/PillarIcon'
-import Link from 'next/link'
+import { EnrollTeamModal, type TeamOption } from './EnrollTeamModal'
 
 interface ActionMatrixProps {
   recommendations: Recommendation[]
+  teams?: TeamOption[]
   loading?: boolean
 }
 
-function RecommendationCard({ rec }: { rec: Recommendation }) {
+function RecommendationCard({
+  rec,
+  onEnroll,
+}: {
+  rec: Recommendation
+  onEnroll: (rec: Recommendation) => void
+}) {
   const status = getScoreStatus(rec.pillarScore)
   const color = STATUS_COLORS[status]
 
@@ -138,14 +145,12 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
             gap: '6px',
             fontSize: '13px',
             padding: '8px 16px',
+            cursor: 'pointer',
           }}
-          onClick={() => {
-            toast.success(`Enrolled team in ${rec.title}`, {
-              description: `Upskilling pathway initialized for ${PILLAR_LABELS[rec.pillar] ?? rec.pillar}.`,
-            })
-          }}
+          onClick={() => onEnroll(rec)}
         >
-          {rec.action_label}
+          <Users size={14} />
+          Enroll Team
         </button>
         {rec.action_url && (
           <button
@@ -157,6 +162,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
               gap: '6px',
               fontSize: '13px',
               padding: '8px 16px',
+              cursor: 'pointer',
             }}
             onClick={() => {
               window.open(rec.action_url ?? '#', '_blank')
@@ -171,7 +177,13 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
   )
 }
 
-export function ActionMatrix({ recommendations, loading = false }: ActionMatrixProps) {
+export function ActionMatrix({
+  recommendations,
+  teams = [],
+  loading = false,
+}: ActionMatrixProps) {
+  const [selectedRec, setSelectedRec] = useState<Recommendation | null>(null)
+
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -272,11 +284,24 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
           }}
         >
           {recommendations.map((rec) => (
-            <RecommendationCard key={rec.id} rec={rec} />
+            <RecommendationCard
+              key={rec.id}
+              rec={rec}
+              onEnroll={(selected) => setSelectedRec(selected)}
+            />
           ))}
         </div>
       )}
+
+      {/* Enroll Team Popup Modal */}
+      <EnrollTeamModal
+        isOpen={!!selectedRec}
+        onClose={() => setSelectedRec(null)}
+        recommendation={selectedRec}
+        allTeams={teams}
+      />
     </div>
   )
 }
+
 
