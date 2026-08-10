@@ -5,6 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
 ![Supabase](https://img.shields.io/badge/Database-Supabase-emerald.svg)
 
+<img src="https://github.com/sethum-VS/myGIF/blob/main/Screen%20Recording%202026-05-05%20at%2017.10.41%20(1)%20(1).gif" width="auto" height="auto" alt="TAI Labs Enterprise AI Readiness Platform** is a data-driven benchmarking and workforce intelligence platform">
 The **TAI Labs Enterprise AI Readiness Platform** is a data-driven benchmarking and workforce intelligence platform. It enables organizations to measure AI adoption maturity, identify multi-department capability gaps, and deliver tailored upskilling pathways across core operational and engineering competencies.
 
 ---
@@ -122,7 +123,3 @@ src/
 - **Service Role Isolation**: Database mutations utilize Supabase Admin Service Role clients scoped strictly by organization ID headers (`x-tai-org-id`).
 
 ---
-
-## 📄 License
-
-Copyright © 2026 TAI Labs Inc. All rights reserved.
