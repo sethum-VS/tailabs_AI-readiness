@@ -81,7 +81,7 @@ export default function LoginPage() {
     return <LoginSkeleton />
   }
 
-  async function handleLogin(provider?: 'google' | 'microsoft') {
+  async function handleLogin(provider?: 'google' | 'microsoft', forceDemo?: boolean) {
     if (provider) {
       setSsoLoading(provider)
     } else {
@@ -89,7 +89,9 @@ export default function LoginPage() {
     }
     setError(null)
     try {
-      const guestId = getOrCreateGuestId()
+      const isDemoLogin = forceDemo || email.trim().toLowerCase() === 'demo' || email.trim().toLowerCase() === 'demo@enterprise.com'
+      const guestId = isDemoLogin ? 'demo' : getOrCreateGuestId()
+      
       const res = await fetch('/api/auth/guest-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -97,6 +99,12 @@ export default function LoginPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Authentication failed')
+      
+      if (isDemoLogin || json.isDemo) {
+        localStorage.setItem('tai_onboarding_completed', 'true')
+        sessionStorage.removeItem('tai_tour_step_index')
+      }
+      
       router.push('/admin')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -193,8 +201,60 @@ export default function LoginPage() {
           <div className="form-header">
             <h2 className="form-title">Admin Sign In</h2>
             <p className="form-subtitle">
-              Sign in to access your organization&apos;s AI readiness dashboard and workforce analytics.
+              Sign in to access your organization&apos;s AI readiness dashboard or explore system capabilities.
             </p>
+          </div>
+
+          {/* Quick Seed Data Access Card */}
+          <div style={{
+            padding: '14px 16px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, rgba(255, 115, 0, 0.08) 0%, rgba(255, 138, 43, 0.04) 100%)',
+            border: '1px solid rgba(255, 115, 0, 0.25)',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px'
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '700', color: '#e66800' }}>
+                <Sparkles size={14} />
+                <span>Showcase Seed Data</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                Explore 7 teams, 67+ evaluations & upskilling recommendations.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('demo')
+                setPassword('demo')
+                handleLogin(undefined, true)
+              }}
+              disabled={loading}
+              style={{
+                height: '34px',
+                padding: '0 12px',
+                borderRadius: '6px',
+                background: '#ff7300',
+                color: '#ffffff',
+                border: 'none',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: '0 2px 6px rgba(255, 115, 0, 0.3)',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>Demo</span>
+              <ChevronRight size={14} />
+            </button>
           </div>
 
           {/* Error Banner */}

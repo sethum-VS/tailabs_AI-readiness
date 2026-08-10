@@ -207,7 +207,7 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
           </h3>
         </div>
         <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0 }}>
-          Targeted recommendations based on pillar scores below 50%
+          Targeted recommendations based on readiness benchmarks (&lt;50% non-technical, &lt;70% technical)
         </p>
       </div>
 
@@ -259,7 +259,7 @@ export function ActionMatrix({ recommendations, loading = false }: ActionMatrixP
                 lineHeight: '1.6',
               }}
             >
-              {"All team pillar scores are above 50%. No targeted interventions required at this time. Continue monitoring scores as more team members complete assessments."}
+              {"All team pillar scores meet target readiness thresholds (>50% non-technical, >70% technical). No targeted interventions required at this time."}
             </p>
           </div>
         </div>
